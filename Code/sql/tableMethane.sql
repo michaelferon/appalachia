@@ -1,15 +1,21 @@
+UPDATE methane_full SET east_wind = NULL where east_wind = 999;
+UPDATE methane_full SET north_wind = NULL where north_wind = 999;
+UPDATE methane_full SET m_weak_twoband = NULL where m_weak_twoband = 0;
+UPDATE methane_full SET m_strong_twoband = NULL where m_strong_twoband = 0;
+
+
 DROP TABLE IF EXISTS methane;
 
 CREATE TABLE methane (
-    time_utc    DATETIME        NOT NULL,
-    time        DECIMAL(12, 3)  NOT NULL,
-    latitude    DECIMAL(15, 13) NOT NULL,
-    longitude   DECIMAL(15, 13) NOT NULL,
-    mmr         DECIMAL(15, 11) NOT NULL,
-    mmr_bc      DECIMAL(15, 11) NOT NULL,
-    qa_value    DECIMAL(2, 1)   NOT NULL,
-    east_wind   DECIMAL(17, 14)         ,
-    north_wind  DECIMAL(17, 14)         ,
+    time_utc    DATETIME         NOT NULL,
+    time        DECIMAL(12, 3)   NOT NULL,
+    latitude    DECIMAL(15, 13)  NOT NULL,
+    longitude   DECIMAL(15, 13)  NOT NULL,
+    mmr         DECIMAL(15, 11)  NOT NULL,
+    mmr_bc      DECIMAL(15, 11)  NOT NULL,
+    qa_value    DECIMAL(2, 1)    NOT NULL,
+    east_wind   DECIMAL(17, 14)          ,
+    north_wind  DECIMAL(17, 14)          ,
 
     PRIMARY KEY (time, latitude, longitude)
 );
@@ -26,10 +32,4 @@ SELECT
     east_wind,
     north_wind
 from methane_full;
-
-UPDATE methane SET east_wind = NULL where east_wind = 999;
-UPDATE methane SET north_wind = NULL where north_wind = 999;
-
-UPDATE methane_full SET east_wind = NULL where east_wind = 999;
-UPDATE methane_full SET north_wind = NULL where north_wind = 999;
 

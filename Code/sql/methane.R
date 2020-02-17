@@ -1,6 +1,6 @@
 rm( list = ls() )
 
-# Make sure you're in the "Code" directory.
+# Make sure you're in the "SQL" directory.
 
 load("../../Data/data-full/varDictFull.Rdata")
 library(lubridate)
@@ -26,7 +26,9 @@ vars <- c("time_utc",
           "surface_altitude_precision",
           "surface_classification",
           "surface_pressure",
-          "apparent_scene_pressure")
+          "apparent_scene_pressure",
+          "methane_weak_twoband_total_column",
+          "methane_strong_twoband_total_column")
 
 # Matrix dimensions.
 m <- length(var_dict$methane_mixing_ratio)
@@ -37,7 +39,8 @@ X <- matrix(data = 0, nrow = m, ncol = n, dimnames = list(NULL, vars))
 for (i in 2:n) {
   X[, i] <- var_dict[[vars[i]]]
 }
-X <- as.data.frame(na.omit(X)) # Convert to data-frame.
+X <- X[!is.na(X[, "methane_mixing_ratio_bias_corrected"]), ]
+X <- as.data.frame(X) # Convert to data-frame.
 
 # Get datetimes.
 X$time_utc <- as.POSIXlt(X$time, origin = "2010-01-01 00:00:00", tz = "UTC")
