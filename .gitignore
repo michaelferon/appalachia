@@ -5,6 +5,8 @@
 
 *.Rdata
 *.nc
+users.sql
+
 methane.csv
 Documentation/
 Literature/
