@@ -137,15 +137,12 @@ if (STATS) {
 ## ANOMALY DETECTION
 # Monthly Anomalies
 anomMonth <- anomaly.matrix(uniqueMonths, data.month, RESO)
-# anomMonthLocal <- anomaly.matrix(uniqueMonths, data.month, RESO, local = TRUE)
 
 # Weekly Anomalies
 anomWeek <- anomaly.matrix(uniqueWeeks, data.week, RESO)
-# anomWeekLocal <- anomaly.matrix(uniqueWeeks, data.week, RESO, local = TRUE)
 
 # Daily Anomalies
 anomDay <- anomaly.matrix(uniqueDays, data.day, RESO)
-# anomDayLocal <- anomaly.matrix(uniqueDays, data.day, RESO, local = TRUE)
 
 
 # Heatmaps!
@@ -156,12 +153,30 @@ image(x = lon, y = rev(lat), z = t(apply(anomWeek, 2, rev)),
 image(x = lon, y = rev(lat), z = t(apply(anomDay, 2, rev)),
       main = 'Daily Global Anomaly Heatmap', xlab = 'Longitude', ylab = 'Latitude')
 
-# image(x = lon, y = rev(lat), z = t(apply(anomMonthLocal, 2, rev)),
-#       main = 'Monthly Local Anomaly Heatmap', xlab = 'Longitude', ylab = 'Latitude')
-# image(x = lon, y = rev(lat), z = t(apply(anomWeekLocal, 2, rev)),
-#       main = 'Weekly Local Anomaly Heatmap', xlab = 'Longitude', ylab = 'Latitude')
-# image(x = lon, y = rev(lat), z = t(apply(anomDayLocal, 2, rev)),
-#       main = 'Daily Local Anomaly Heatmap', xlab = 'Longitude', ylab = 'Latitude')
+
+
+## PLOTS
+outdir <- '../Figures/3DayPlots/'
+xMin <- min(X$longitude) - 0.1
+xMax <- max(X$longitude) + 0.1
+yMin <- min(X$latitude) - 0.1
+yMax <- max(X$latitude) + 0.1
+
+xLim <- c(xMin, xMax)
+yLim <- c(yMin, yMax)
+
+for (month in 1:length(data.month)) {
+  plot.month(data.month[[month]], xLim, yLim, outdir = outdir)
+}
+
+
+rm(outdir, xMin, xMax, yMin, yMax, xLim, yLim)
+
+
+
+
+
+
 
 
 

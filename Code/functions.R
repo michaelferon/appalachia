@@ -51,3 +51,48 @@ my.week <- function(data) {
 my.month <- function(data) {
   return( paste(year(data), '-', month(data), sep=''))
 }
+
+
+plot.month <- function(data, xLim, yLim, outdir = NULL) {
+  
+  daysInMonth <- c(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
+  
+  yearName <- unique(year(data$time_utc))
+  monthName <- unique(months(data$time_utc))
+  monthNum <- unique(month(data$time_utc))
+  maxDay <- daysInMonth[monthNum]
+  numPlots <- floor(maxDay / 3)
+  group <- floor((mday(data$time_utc) - 1) / 3) + 1
+  group[group > numPlots] <- numPlots
+  
+  for (i in 1:numPlots) {
+    df <- data[group == i, ]
+    firstDay <- 3*(i - 1) + 1
+    lastDay <- 3*(i - 1) + 3
+    if (maxDay == 31 | maxDay == 28) {
+      if (i == numPlots) {
+        lastDay <- lastDay + 1
+      }
+    }
+    
+    if (!is.null(outdir)) {
+      pasteDay <- firstDay
+      if (pasteDay < 10) { pasteDay <- paste(0, pasteDay, sep='') }
+      pdf(file = paste(outdir, yearName, '-', monthNum, '-', pasteDay, '.pdf', sep=''),
+          height = 7, width = 10) 
+    }
+    
+    t <- paste(monthName, ' ', firstDay, ' - ', monthName, ' ', lastDay, ', ', yearName, sep='')
+    quilt.plot(df$longitude, df$latitude, df$methane_mixing_ratio_bias_corrected,
+               main = t, xlim = c(xMin, xMax), ylim = c(yMin, yMax),
+               xlab = 'Longitude', ylab = 'Latitude')
+    US(add = TRUE, col = 'grey', lwd = 2)
+    
+    if (!is.null(outdir)) {
+      dev.off() 
+    }
+  }
+}
+
+
+
