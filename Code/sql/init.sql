@@ -36,5 +36,8 @@ LOAD DATA LOCAL INFILE
     IGNORE 1 ROWS;
 
 
-
+UPDATE methane_full SET east_wind = NULL where east_wind = 999;
+UPDATE methane_full SET north_wind = NULL where north_wind = 999;
+UPDATE methane_full SET m_weak_twoband = NULL where m_weak_twoband = 0;
+UPDATE methane_full SET m_strong_twoband = NULL where m_strong_twoband = 0;
 
