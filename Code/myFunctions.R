@@ -163,15 +163,16 @@ quilt.plot.month <- function(data, xLim, yLim, zLim, outdir = '../Figures/3DayPl
   
   for (i in 1:(a$numGroups)) {
     df <- data[a$group == i, ]
-    if (dim(df)[1] == 0) { next }
+    if (dim(df)[1] <= 1) { next }
     
     b <- setup.3day.b(i, a$numGroups, a$monthNum, a$monthName, a$yearName, a$maxDay)
     
     pdf(file = paste(outdir, a$yearName, '-', b$pasteMonth, '-', b$pasteDay, '.pdf', sep=''),
-        height = 6, width = 9)
+        height = 4.25, width = 9)
+    par(mar = c(2, 4, 2, 2) + 0.1)
     quilt.plot(df$longitude, df$latitude, df$methane_mixing_ratio_bias_corrected, na.rm = TRUE,
-               main = b$t, xlim = xLim, ylim = yLim, zlim = zLim,
-               xlab = 'Longitude', ylab = 'Latitude')
+               xlim = xLim, ylim = yLim, zlim = zLim)
+    title(b$t, line = 0.30, cex.main = 1.5)
     US(add = TRUE, lwd = 2)
     dev.off()
   }

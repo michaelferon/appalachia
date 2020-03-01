@@ -33,7 +33,7 @@ basemap.hybrid <- get.basemap('google', 'hybrid', lonBounds, latBounds)
 
 
 ## Dividing data spatially into RESO^2 quadrants.
-RESO <- 100
+RESO <- 64
 latTicks <- seq(latBounds[1], latBounds[2], length = RESO + 1)
 lonTicks <- seq(lonBounds[1], lonBounds[2], length = RESO + 1)
 X <- assign.quadrants(X, latTicks, lonTicks, RESO)
@@ -128,28 +128,24 @@ if (MAKE_QUILT_PLOTS) {
   for (month in 1:length(data.month)) {
     quilt.plot.month(data.month[[month]], xLim, yLim, zLim)
   }
+  for (month in 1:length(data.month)) {
+    df <- data.month[[month]]
+    df <- df[df$qa_value == 1.0, ]
+    quilt.plot.month(df, xLim, yLim, zLim, outdir = '../Figures/3DayPlots/high-qa/')
+  }
   
-  ## BROKEN for now
-  # for (month in 1:length(data.month)) {
-  #   df <- data.month[[month]]
-  #   df <- df[df$qa_value == 1.0, ]
-  #   quilt.plot.month(df, xLim, yLim, zLim, outdir = '../Figures/3DayPlots/high-qa/')
-  # }
-  
-  rm(month)
+  rm(month, df)
 }
 
 if (MAKE_GG_PLOTS & RESO == 64) {
   for (month in 1:length(data.month)) {
     ggmap.plot.month(data.month[[month]], basemap.hybrid, lat, lon, RESO, zLim)
   }
-  
-  ## BROKEN for now
-  # for (month in 1:length(data.month)) {
-  #   df <- data.month[[month]]
-  #   df <- df[df$qa_value == 1.0, ]
-  #   ggmap.plot.month(df, basemap.hybrid, lat, lon, RESO, zLim, outdir = '../Figures/gg3DayPlots/high-qa/')
-  # }
+  for (month in 18:length(data.month)) {
+    df <- data.month[[month]]
+    df <- df[df$qa_value == 1.0, ]
+    ggmap.plot.month(df, basemap.hybrid, lat, lon, RESO, zLim, outdir = '../Figures/gg3DayPlots/high-qa/')
+  }
   
   rm(month)
 }

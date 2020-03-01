@@ -1,0 +1,18 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[top=0.05in, bottom=0.05in, left=0.05in, right=0.05in]{geometry}
+\usepackage{graphicx} % Graphics, with \includegraphics
+\usepackage{subcaption} % For \begin{subfigure}
+\usepackage{float} % For figure[H]
+\usepackage{courier} % Modifies \ttfamily to Courier Font
+\usepackage{xcolor} % For colors
+
+\graphicspath{{../../Figures/3DayPlots/}}
+
+
+\begin{document}
+\pagenumbering{gobble}
+\begin{figure}[H]
+    \centering
+\end{figure}
+\end{document}
