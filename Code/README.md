@@ -24,7 +24,7 @@ Loads `dataFull.Rdata`. This is where analysis is performed, with some plots and
 
 heatmaps.R
 ==========
-This file loads `dataFull.Rdata`. This file produces an estimate, for each quadrant, of the proportion of days of above-average CH4 levels. The heatmap is `~/Figures/proportions/propmat.pdf`. It performs this same process month-by-month as well. These heatmaps are in `~/Figures/proportions/monthly-pdf`. Finally, the results of the algorithm for producing this estimated proportion are then saved to `propList.Rdata` for further analysis.
+This script loads `dataFull.Rdata`. It then produces an estimate, for each quadrant, of the proportion of days of above-average CH4 levels. The heatmap is `~/Figures/proportions/propmat.pdf`. It performs this same process month-by-month as well. These heatmaps are in `~/Figures/proportions/monthly-pdf`. Finally, the results of the algorithm for producing this estimated proportion are then saved to `propList.Rdata` for further analysis.
 
 maps.R
 ======
@@ -32,11 +32,11 @@ Produces the Haynesville-Bossier map and the satellite map.
 
 maskInit.R
 ==========
-This file loads the `.hdf` files with the MOD44W v006 MODIS/Terra Land Water Mask 250m SIN Grid data, downloaded from [__USGS/EarthData__](https://lpdaac.usgs.gov/products/mod44wv006/). It converts these `HDF4` files, which are difficult to work with in `R`, into `netCDF` files. The `.nc` files do take substantially more disk-space, unfortunately; but, they are much easier to work with. This file then filters the data to include only those points that lie within our region of study. It then saves the data to `mask.Rdata`.
+Loads the `netCDF` files with the MOD44W v006 MODIS/Terra Land Water Mask 250m SIN Grid data, downloaded from [__USGS/EarthData__](https://lpdaac.usgs.gov/products/mod44wv006/). These files were originally formatted in `HDF4`, a difficult format to work with in `R`. Prior to processing, make sure to convert from `.hdf` to `.nc`. This script then filters the data to include only those points that lie within our region of study. It then saves the data to `mask.Rdata`.
 
 mask.R
 ======
-This file loads `mask.Rdata` for processing. It applies the mask to the `X` data matrix and then, like `heatmaps.R`, produces an estimate, for each quadrant, of the proportion of days of above-average CH4 levels. It does this monthly as well. Images are saved in the `~/Figures/proportions/mask-adjusted` folder, and results are saved to `propListAdj.Rdata`.
+Loads `mask.Rdata` for processing. It applies the land water mask to the `X` data matrix and then, like `heatmaps.R`, produces an estimate, for each quadrant, of the proportion of days of above-average CH4 levels. It does this monthly as well. Plots are saved in the `~/Figures/proportions/mask-adjusted` folder, and results are saved to `propListAdj.Rdata`.
 
 
 
