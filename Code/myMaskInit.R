@@ -1,0 +1,46 @@
+rm( list = ls() )
+
+# Make sure you're in the 'Code' directory.
+
+load('../Data/data-full/dataFull.Rdata')
+source('myFunctions.R')
+library(ncdf4)
+
+data.dir <- '../Data/mask/nc/'
+file_names <- paste(data.dir, list.files(data.dir), sep='')
+".DS_Store" %in% file_names
+any(is.na(file_names))
+length(file_names)
+
+
+file <- nc_open(file_names[1], write = FALSE)
+
+lat_vals <- ncvar_get(file, 'latitude')
+lon_vals <- ncvar_get(file, 'longitude')
+water <- ncvar_get(file, 'water_mask')
+
+mask <- data.frame(longitude = c(lon_vals), latitude = c(lat_vals), water = c(water))
+
+for (i in 2:8) {
+  file <- nc_open(file_names[i], write = FALSE)
+  lat_vals <- ncvar_get(file, 'latitude')
+  lon_vals <- ncvar_get(file, 'longitude')
+  water <- ncvar_get(file, 'water_mask')
+  
+  temp <- data.frame(longitude = c(lon_vals), latitude = c(lat_vals), water = c(water))
+  mask <- rbind(mask, temp)
+}
+
+
+
+
+latBounds <- range(X$latitude)
+lonBounds <- range(X$longitude)
+
+mask <- subset(mask, lonBounds[1] <= longitude & longitude <= lonBounds[2])
+mask <- subset(mask, latBounds[1] <= latitude & latitude <= latBounds[2])
+rownames(mask) <- NULL
+mask$quadrant <- 0
+
+rm(dateTimes, file, lat_vals, lon_vals, temp, water, data.dir, file_names, i, latBounds, lonBounds)
+save(mask, file = '../Data/mask/mask.Rdata')

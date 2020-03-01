@@ -9,8 +9,8 @@ library(lubridate)
 # Variables of interest (for now).
 vars <- c('time_utc',
           'time',
-          'latitude',
           'longitude',
+          'latitude',
           'methane_mixing_ratio',
           'methane_mixing_ratio_bias_corrected',
           'qa_value',
@@ -38,7 +38,7 @@ X$qa_value <- as.factor(X$qa_value)
 
 # Get datetimes.
 X$time_utc <- as.POSIXlt(X$time, origin = '2010-01-01 00:00:00', tz = 'UTC')
-X <- X[order(X$time, X$latitude), ] # Sort by time.
+X <- X[order(X$time, X$longitude), ] # Sort by time and longitude.
 dateTimes <- X$time_utc
 
 rm(i, m, n, vars, var_dict)

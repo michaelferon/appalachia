@@ -3,6 +3,7 @@ rm( list = ls() )
 # Make sure you're in the "Code" directory.
 
 load('../Data/data-full/dataFull.Rdata')
+source('myFunctions.R')
 
 library(lubridate)
 library(ggplot2)
@@ -23,29 +24,23 @@ shp.data <- shp.data[h, ]
 df <- fortify(shp.data)
 
 # Map boundaries.
-latBounds <- c(min(X$latitude), max(X$latitude))
-lonBounds <- c(min(X$longitude), max(X$longitude))
+latBounds <- range(X$latitude)
+lonBounds <- range(X$longitude)
 
 
 # Map of the Haynesville-Bossier Shale
-map <- ggmap(get_map(location = c(mean(lonBounds), mean(latBounds)), source = 'google',
-                     maptype = 'hybrid', zoom = 6))
-map <- map + scale_x_continuous(limits = lonBounds, expand = c(0, 0))
-map <- map + scale_y_continuous(limits = latBounds, expand = c(0, 0))
-map <- map + geom_polygon(data = df, aes(long, lat), size = 0.3, alpha = 0.3,
-                          color = 'white', fill = 'orangered4')
-map <- map + ggtitle('The Haynesville-Bossier Shale')
-map <- map + xlab('Longitude') + ylab('Latitude')
-map
+shale.map <- get.basemap('google', 'hybrid', lonBounds, latBounds)
+shale.map <- shale.map + geom_polygon(data = df, aes(long, lat), size = 0.3, alpha = 0.3,
+                                      color = 'white', fill = 'orangered4')
+shale.map <- shale.map + ggtitle('The Haynesville-Bossier Shale')
+shale.map <- shale.map + xlab('Longitude') + ylab('Latitude')
+shale.map
 
 
 # Sattelite view.
-map <- ggmap(get_map(location = c(mean(lonBounds), mean(latBounds)), source = 'google',
-                     maptype = 'satellite', zoom = 6))
-map <- map + scale_x_continuous(limits = lonBounds, expand = c(0, 0))
-map <- map + scale_y_continuous(limits = latBounds, expand = c(0, 0))
-map <- map + ggtitle('Satellite View')
-map <- map + xlab('Longitude') + ylab('Latitude')
-map
+sat.map <- get.basemap('google', 'satellite', lonBounds, latBounds)
+sat.map <- sat.map + ggtitle('Satellite View')
+sat.map <- sat.map + xlab('Longitude') + ylab('Latitude')
+sat.map
 
 

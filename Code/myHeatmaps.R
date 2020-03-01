@@ -2,7 +2,7 @@ rm( list = ls() )
 
 # Make sure you're in the 'Code' directory.
 
-load('../Data/data-full/X100.Rdata')
+load('../Data/data-full/dataFull.Rdata')
 source('myFunctions.R')
 
 library(config)    # Configuration details.
@@ -17,9 +17,22 @@ ggmap::register_google(info$google_api_key)
 rm(info)
 
 # ggmap stuff.
-latBounds <- c(min(X$latitude), max(X$latitude))
-lonBounds <- c(min(X$longitude), max(X$longitude))
-basemap.hybrid <- get.basemap('google', 'hybrid')
+latBounds <- range(X$latitude)
+lonBounds <- range(X$longitude)
+basemap.hybrid <- get.basemap('google', 'hybrid', lonBounds, latBounds)
+
+
+
+
+## Dividing data spatially into RESO^2 quadrants.
+RESO <- 100
+latTicks <- seq(latBounds[1], latBounds[2], length = RESO + 1)
+lonTicks <- seq(lonBounds[1], lonBounds[2], length = RESO + 1)
+X <- assign.quadrants(X, latTicks, lonTicks, RESO)
+
+# Here, lat and lon are the midpoints of each quadrant.
+lat <- rev(rollmean(latTicks, 2))
+lon <- rollmean(lonTicks, 2)
 
 
 

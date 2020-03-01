@@ -5,6 +5,7 @@
 
 *.Rdata
 *.nc
+*.hdf
 users.sql
 
 methane.csv
@@ -12,3 +13,6 @@ Figures/
 Documentation/
 Literature/
 Presentations/
+
+Data/h4tonccf_nc4
+Data/cows

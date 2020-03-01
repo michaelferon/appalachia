@@ -12,6 +12,7 @@ library(reshape2)  # Reshaping data.
 library(fields)    # Plotting spatial data.
 library(ggmap)     # Spatial plotting using maps.
 library(googleway) # Elevation data.
+library(zoo)       # For rollmean().
 
 # Need a Google API key for some of the stuff below.
 info <- config::get(file = './config/config.yml')
@@ -20,26 +21,26 @@ googleway::set_key(info$google_api_key)
 rm(info)
 
 STATS <- FALSE # Print summary statistics?
-MAKE_GG_PLOTS <- TRUE # Wise to keep this FALSE -- see ~/Figures/gg3DayPlots.
+MAKE_GG_PLOTS <- FALSE # Wise to keep this FALSE -- see ~/Figures/gg3DayPlots.
 MAKE_QUILT_PLOTS <- FALSE # This as well -- see ~/Figures/3DayPlots.
 
 # ggmap stuff.
-latBounds <- c(min(X$latitude), max(X$latitude))
-lonBounds <- c(min(X$longitude), max(X$longitude))
-basemap.hybrid <- get.basemap('google', 'hybrid')
+latBounds <- range(X$latitude)
+lonBounds <- range(X$longitude)
+basemap.hybrid <- get.basemap('google', 'hybrid', lonBounds, latBounds)
 
 
 
 
 ## Dividing data spatially into RESO^2 quadrants.
-RESO <- 64
-latTicks <- rev(seq(min(X$latitude), max(X$latitude), length = RESO + 1))[-1]
-lonTicks <- seq(min(X$longitude), max(X$longitude), length = RESO + 1)[-1]
+RESO <- 100
+latTicks <- seq(latBounds[1], latBounds[2], length = RESO + 1)
+lonTicks <- seq(lonBounds[1], lonBounds[2], length = RESO + 1)
 X <- assign.quadrants(X, latTicks, lonTicks, RESO)
 
 # Here, lat and lon are the midpoints of each quadrant.
-lat <- rev(seq((latTicks[RESO] + latTicks[RESO - 1])/2, (latTicks[1] + max(X$latitude))/2, length = RESO))
-lon <- seq((min(X$longitude) + lonTicks[1])/2, (lonTicks[RESO - 1] + lonTicks[RESO])/2, length = RESO)
+lat <- rev(rollmean(latTicks, 2))
+lon <- rollmean(lonTicks, 2)
 
 
 
@@ -158,8 +159,18 @@ rm(xLim, yLim, zLim)
 
 
 
-library(googleway)
-test <- google_elevation(df_locations = X[1:10, 3:4], location_type = 'individual')
+## Cows.
+cow.data <- read.csv('../Data/cows/Texas_Cow_Data.csv', header = TRUE)
+cow.map <- get.basemap('google', 'terrain', lonBounds, latBounds)
+
+cow.map +
+  geom_point(cow.data, mapping = aes(x = X..Long., y = Y..Lat., size = Cattle),
+             color = 'Red')
+
+g <- ggplot(data = cow.data, mapping = aes(x = X..Long., y = Y..Lat., size = Cattle),
+            size = 7.0)
+g <- g + geom_point(color = 'Red')
+g
 
 
 
