@@ -122,7 +122,8 @@ if (STATS) {
 ## QUILT-PLOTS
 xLim <- lonBounds + c(-0.1, 0.1)
 yLim <- latBounds + c(-0.065, 0.065)
-zLim <- c(1650, 1900)
+zLim <- c(1750, 1950)
+zLim <- c(1710, 1910)
 
 if (MAKE_QUILT_PLOTS) {
   for (month in 1:length(data.month)) {
@@ -147,7 +148,7 @@ if (MAKE_GG_PLOTS & RESO == 64) {
     ggmap.plot.month(df, basemap.hybrid, lat, lon, RESO, zLim, outdir = '../Figures/gg3DayPlots/high-qa/')
   }
   
-  rm(month)
+  rm(month, df)
 }
 
 rm(xLim, yLim, zLim)

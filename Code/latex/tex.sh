@@ -48,6 +48,7 @@ for ((i=0; i<length; ++i)); do
         echo -e '\t\\end{subfigure}' >> $out
     else
         echo -e '\t\\begin{subfigure}{\\linewidth}' >> $out
+        echo -e '\t\t\\hspace{0.25cm}' >> $out
         echo -en '\t\t\\includegraphics[width=0.48\\linewidth]' >> $out
         echo "{marginal-qa/$(basename ${marginal[$i]})}" >> $out
         echo -e '\t\\end{subfigure}' >> $out
