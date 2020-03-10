@@ -10,6 +10,7 @@ library(lubridate) # Handling date-times.
 library(ggplot2)   # Plotting.
 library(ggmap)     # Spatial plotting using maps.
 library(fields)
+library(zoo)
 
 # Need a Google API key for some of the stuff below.
 info <- config::get(file = './config/config.yml')
@@ -65,7 +66,7 @@ US(add = TRUE, lwd = 2)
 
 # Heatmap with geo-map underlaid.
 g <- ggmap.prop.matrix(full$mat, lat, lon, basemap.hybrid, 'Daily')
-pdf(file = '../Figures/proportions/propmat.pdf', height = 5.25, width = 9)
+pdf(file = '../Figures/proportions/propmat.pdf', height = 6.5, width = 7.5)
 print(g)
 dev.off()
 
@@ -98,8 +99,7 @@ for (i in 1:length(data.month)) {
   if (monthNum < 10) { monthNum <- paste('0', monthNum, sep='') }
   title <- paste(yearName, monthNum, sep='-')
 
-  # png(filename = paste(outdir, title, '.png', sep=''), height = 480, width = 825)
-  pdf(file = paste(outdir, title, '.pdf', sep=''), height = 5.25, width = 9)
+  pdf(file = paste(outdir, title, '.pdf', sep=''), height = 6.5, width = 7.5)
   g <- ggmap.prop.matrix(struct$mat, lat, lon, basemap.hybrid, 'Daily', pTitle = pTitle)
   print(g)
   dev.off()

@@ -1,6 +1,9 @@
 rm( list = ls() )
 
 # Make sure you're in the 'Code' directory.
+## DO NOT RUN THIS CODE.
+## WARNING: The conversion from hdf4 to nc takes a LOT of space.
+## The necessary data is saved to mask.Rdata.
 
 load('../Data/data-full/dataFull.Rdata')
 source('myFunctions.R')
@@ -21,7 +24,7 @@ water <- ncvar_get(file, 'water_mask')
 
 mask <- data.frame(longitude = c(lon_vals), latitude = c(lat_vals), water = c(water))
 
-for (i in 2:8) {
+for (i in 2:4) {
   file <- nc_open(file_names[i], write = FALSE)
   lat_vals <- ncvar_get(file, 'latitude')
   lon_vals <- ncvar_get(file, 'longitude')

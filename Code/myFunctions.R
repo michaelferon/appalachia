@@ -115,7 +115,7 @@ ggmap.prop.matrix <- function(prop.mat, lat, lon, basemap, type, pTitle = NULL, 
                      mapping = aes(x = longitude, y = latitude, fill = value))
   g <- g + scale_fill_gradientn(colors = hcl.colors(16, "YlOrRd", rev = TRUE))
   g <- g + ggtitle(pTitle) + xlab('Longitude') + ylab('Latitude')
-  g <- g + theme(legend.key.width = unit(2.25, 'cm'))
+  g <- g + theme(legend.key.width = unit(2.75, 'cm'))
   g <- g + theme(legend.position = 'bottom')
   g <- g + guides(fill = guide_colorbar(title = lTitle, title.position = 'top'))
   
@@ -201,7 +201,7 @@ ggmap.plot.month <- function(data, basemap, lat, lon, RESO, zLim, outdir = '../F
     b <- setup.3day.b(i, a$numGroups, a$monthNum, a$monthName, a$yearName, a$maxDay)
     
     pdf(file = paste(outdir, a$yearName, '-', b$pasteMonth, '-', b$pasteDay, '.pdf', sep=''),
-        height = 5.25, width = 9)
+        height = 6.5, width = 7.5)
     my.plot <- ggmap.geom_tile(df.plot, basemap, height, width, b$t, zLim)
     print(my.plot)
     dev.off()

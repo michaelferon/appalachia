@@ -34,13 +34,17 @@ shale.map <- shale.map + geom_polygon(data = df, aes(long, lat), size = 0.3, alp
                                       color = 'white', fill = 'orangered4')
 shale.map <- shale.map + ggtitle('The Haynesville-Bossier Shale')
 shale.map <- shale.map + xlab('Longitude') + ylab('Latitude')
-shale.map
+pdf(file = '../Figures/Haynesville-Bossier.pdf', height = 6.5, width = 8)
+print(shale.map)
+dev.off()
 
 
 # Sattelite view.
 sat.map <- get.basemap('google', 'satellite', lonBounds, latBounds)
 sat.map <- sat.map + ggtitle('Satellite View')
 sat.map <- sat.map + xlab('Longitude') + ylab('Latitude')
-sat.map
+pdf(file = '../Figures/satellite.pdf', height = 6.5, width = 8)
+print(sat.map)
+dev.off()
 
 
