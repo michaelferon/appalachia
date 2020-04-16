@@ -80,12 +80,14 @@ if (MAKE_TIME_SERIES) {
   g.week <- ggplot(data = weekDF, aes(x = Date, y = value, col = variable)) + geom_line()
   g.week <- g.week + ggtitle('Mean Weekly Methane Mixing Ratio\nby Quadrant')
   g.week <- g.week + xlab('Time') + ylab('Methane Mixing Ratio') + labs(col = 'Quadrant')
+  g.week <- g.week + theme_bw()
   
   # Plotting daily means.
   dayDF <- melt(dailyMeans, id.vars = 'Date')
   g.day <- ggplot(data = dayDF, aes(x = Date, y = value, col = variable)) + geom_line()
   g.day <- g.day + ggtitle('Mean Daily Methane Mixing Ratio\nby Quadrant')
   g.day <- g.day + xlab('Time') + ylab('Methane Mixing Ratio') + labs(col = 'Quadrant')
+  g.day <- g.day + theme_bw()
   
   if (RESO == 2) {
     pdf(file = '../Figures/time-series/ts-weekly.pdf', height = 4.0, width = 10.0)

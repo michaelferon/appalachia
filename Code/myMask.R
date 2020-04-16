@@ -27,7 +27,7 @@ basemap.hybrid <- get.basemap('google', 'hybrid', lonBounds, latBounds)
 ## Map with water overlaid.
 mask.water <- subset(mask, water == 1)
 water <- get_map(location = c(mean(lonBounds), mean(latBounds)), color = 'bw',
-               source = 'stamen', maptype = 'terrain-background', zoom = 6)
+                 source = 'stamen', maptype = 'terrain-background', zoom = 6)
 water <- ggmap(water)
 water <- water + scale_x_continuous(limits = lonBounds, expand = c(0, 0))
 water <- water + scale_y_continuous(limits = latBounds, expand = c(0, 0))
@@ -35,9 +35,9 @@ water <- water +
   geom_point(data = mask.water, mapping = aes(x = longitude, y = latitude),
              color = 'blue', size = 0.1, stroke = 0, shape = 16) +
   ggtitle('Land Water Mask') + xlab('Longitude') + ylab('Latitude')
-pdf(file = '../Figures/mask.pdf', height = 6.5, width = 8.0)
-print(water)
-dev.off()
+# pdf(file = '../Figures/mask.pdf', height = 6.5, width = 8.0)
+# print(water)
+# dev.off()
 
 
 
@@ -58,9 +58,9 @@ length(unique(mask$quadrant)) / RESO^2
 noData <- (1:(RESO^2))[!(1:(RESO^2) %in% unique(mask$quadrant))]
 
 # TEST
-test <- tapply(mask$quadrant, mask$quadrant, length)
-tapply(test, test, function(x) length(x) / RESO^2)
-rm(test)
+# test <- tapply(mask$quadrant, mask$quadrant, length)
+# tapply(test, test, function(x) length(x) / RESO^2)
+# rm(test)
 # END TEST
 
 prop.water <- tapply(mask$water, mask$quadrant, mean)
@@ -114,7 +114,7 @@ US(add = TRUE, lwd = 2)
 # Heatmap with geo-map underlaid.
 g <- ggmap.prop.matrix(full$mat, lat, lon, basemap.hybrid, 'Daily',
                        pTitle = 'Mask Adjusted Daily Elevated Methane Levels')
-pdf(file = '../Figures/proportions/mask-adjusted/propmat-mask.pdf', height = 6.5, width = 7.5)
+pdf(file = '../Figures/proportions/mask-adjusted/propmat-mask.pdf', height = 5.0, width = 7.5)
 print(g)
 dev.off()
 
@@ -147,7 +147,7 @@ for (i in 1:length(data.month)) {
   if (monthNum < 10) { monthNum <- paste('0', monthNum, sep='') }
   title <- paste(yearName, monthNum, sep='-')
   
-  pdf(file = paste(outdir, title, '.pdf', sep=''), height = 6.5, width = 7.5)
+  pdf(file = paste(outdir, title, '.pdf', sep=''), height = 5.0, width = 7.5)
   g <- ggmap.prop.matrix(struct$mat, lat, lon, basemap.hybrid, 'Daily', pTitle = pTitle)
   print(g)
   dev.off()

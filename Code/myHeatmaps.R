@@ -66,7 +66,7 @@ US(add = TRUE, lwd = 2)
 
 # Heatmap with geo-map underlaid.
 g <- ggmap.prop.matrix(full$mat, lat, lon, basemap.hybrid, 'Daily')
-pdf(file = '../Figures/proportions/propmat.pdf', height = 6.5, width = 7.5)
+pdf(file = '../Figures/proportions/propmat.pdf', height = 5.0, width = 7.5)
 print(g)
 dev.off()
 
@@ -99,7 +99,7 @@ for (i in 1:length(data.month)) {
   if (monthNum < 10) { monthNum <- paste('0', monthNum, sep='') }
   title <- paste(yearName, monthNum, sep='-')
 
-  pdf(file = paste(outdir, title, '.pdf', sep=''), height = 6.5, width = 7.5)
+  pdf(file = paste(outdir, title, '.pdf', sep=''), height = 5.0, width = 7.5)
   g <- ggmap.prop.matrix(struct$mat, lat, lon, basemap.hybrid, 'Daily', pTitle = pTitle)
   print(g)
   dev.off()

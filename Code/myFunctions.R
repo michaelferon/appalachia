@@ -13,17 +13,26 @@ get.basemap <- function(source, type, lonBounds, latBounds) {
 
 
 my.yday <- function(data) {
-  return( paste(year(data), '-', yday(data), sep='') )
+  temp <- yday(data)
+  lt100 <- temp < 100
+  lt10 <- temp < 10
+  temp[lt100] <- paste('0', temp[lt100], sep='')
+  temp[lt10] <- paste('0', temp[lt10], sep='')
+  return( paste(year(data), '-', temp, sep='') )
 }
 
 
 my.week <- function(data) {
-  return( paste(year(data), '-', week(data), sep='') )
+  temp <- week(data)
+  temp[temp < 10] <- paste('0', temp[temp < 10], sep='')
+  return( paste(year(data), '-', temp, sep='') )
 }
 
 
 my.month <- function(data) {
-  return( paste(year(data), '-', month(data), sep='') )
+  temp <- month(data)
+  temp[temp < 10] <- paste('0', temp[temp < 10], sep='')
+  return( paste(year(data), '-', temp, sep='') )
 }
 
 
@@ -51,9 +60,9 @@ data.aggregate <- function(X, dateTimes.period, uniqueTimes, type) {
 means.matrix <- function(X, data, dateTimes.period, uniqueTimes, RESO) {
   periodMeans <- matrix(data = NA, nrow = length(uniqueTimes), ncol = RESO^2)
   for (i in 1:length(uniqueTimes)) {
-     value <- tapply(data[[i]]$methane_mixing_ratio_bias_corrected, data[[i]]$quadrant, mean)
-     temp <- as.numeric(names(value))
-     periodMeans[i, temp] <- value
+    value <- tapply(data[[i]]$methane_mixing_ratio_bias_corrected, data[[i]]$quadrant, mean, na.rm = TRUE)
+    temp <- as.numeric(names(value))
+    periodMeans[i, temp] <- value
   }
   
   periodMeans <- as.data.frame(periodMeans, row.names = names(data))
@@ -109,15 +118,14 @@ ggmap.prop.matrix <- function(prop.mat, lat, lon, basemap, type, pTitle = NULL, 
   
   width <- abs(mean(diff(lon)))
   height <- abs(mean(diff(lat)))
-
+  
   g <- basemap
   g <- g + geom_tile(data = df, height = height, width = width, alpha = opacity,
                      mapping = aes(x = longitude, y = latitude, fill = value))
   g <- g + scale_fill_gradientn(colors = hcl.colors(16, "YlOrRd", rev = TRUE))
-  g <- g + ggtitle(pTitle) + xlab('Longitude') + ylab('Latitude')
-  g <- g + theme(legend.key.width = unit(2.75, 'cm'))
-  g <- g + theme(legend.position = 'bottom')
-  g <- g + guides(fill = guide_colorbar(title = lTitle, title.position = 'top'))
+  g <- g + xlab('Longitude') + ylab('Latitude')
+  g <- g + theme(legend.key.height = unit(2.00, 'cm'))
+  g <- g + labs(fill = '')
   
   return(g)
 }
@@ -218,14 +226,85 @@ ggmap.geom_tile <- function(df, basemap, height, width, t, zLim) {
                      mapping = aes(x = longitude, y = latitude,
                                    fill = methane_mixing_ratio_bias_corrected))
   g <- g + scale_fill_gradientn(colors = tim.colors(64), limits = zLim)
-  g <- g + ggtitle(t) + xlab('Longitude') + ylab('Latitude')
-  g <- g + theme(legend.key.width = unit(2.25, 'cm'))
-  g <- g + theme(legend.position = 'bottom')
-  g <- g + guides(fill = guide_colorbar(title = lTitle, title.position = 'top'))
+  g <- g + xlab('Longitude') + ylab('Latitude')
+  g <- g + theme(legend.key.height = unit(2.0, 'cm'))
+  g <- g + labs(fill = '')
   return(g)
 }
 
 
+wind.shift <- function(X,time_shift){
+  X_wind = X
+  #69 (roughly) represents number of miles in 1 degree latitude.
+  #Difficult to calculate exactly like for longitude, but 69 should be an accurate enough measurement for our purposes
+  X_wind[,'latitude'] = X[,'latitude'] + (1/69) *time_shift * X[,'eastward_wind']
+  
+  #Length of 1 degree of Longitude in miles = cosine (latitude in decimal degrees) * length of degree (miles) at equator.
+  #Could change this to use an integral to exactly calculate time shift and remove some bias
+  X_wind[,'longitude'] = X[,'longitude'] + (1/69.172) * cos(X[,'latitude']) * time_shift *X[,'northward_wind']
+  
+  #Times must be shifted forward by time_shift hours
+  #Date data type allows for addition of seconds
+  X_wind[,'time'] = X[,'time'] + 60*60*time_shift
+  X_wind[,'time_utc'] = X[,'time_utc'] + 60*60*time_shift
+  return(X_wind)
+}
 
 
+arima.df <- function(data, weekSeq) {
+  weeks <- my.week(data$time_utc)
+  weeks[weeks == '2018-53'] <- '2018-52'
+  weeks[weeks == '2019-53'] <- '2019-52'
+  vec <- tapply(data$methane_mixing_ratio_bias_corrected,
+                weeks,
+                mean)
+  times <- tapply(data$time, weeks, mean) %>%
+    as.POSIXct(tz = 'UTC', origin = '2010-01-01 00:00:00')
+  df <- data.frame(week = weekSeq, time = NA, methane = NA)
+  for (i in 1:length(vec)) {
+    ind <- which(my.week(times[i]) == weekSeq)
+    df[ind, 'time'] <- times[i]
+    df[ind, 'methane'] <- vec[i]
+  }
+  df$time <- as.POSIXct(df$time, tz = 'UTC', origin = '1970-01-01')
+  inds <- which(is.na(df$methane))
+  for (ind in inds) {
+    df[ind, 'time'] <- df[ind - 1, 'time'] + 604800
+    df[ind, 'methane'] <- df[ind - 1, 'methane']
+  }
+  
+  return(df)
+}
 
+
+gg.arima <- function(data, forecast, title, h = 4) {
+  x <- data$time
+  for (i in 1:h) { x <- c(x, x[length(x)] + 604800) }
+  y <- c(data$methane, forecast$mean)
+  
+  df <- tibble(
+    time = x,
+    methane = y,
+    lower = as.numeric(NA),
+    upper = as.numeric(NA)
+  )
+  df$lower[(nrow(df) - h + 1):nrow(df)] <- forecast$lower %>%
+    as.matrix %>% .[, 1]
+  df$upper[(nrow(df) - h + 1):nrow(df)] <- forecast$upper %>%
+    as.matrix %>% .[, 1]
+  g <- ggplot(df, aes(time, methane)) +
+    geom_line() +
+    geom_errorbar(data = (df %>% top_n(-h)),
+                  aes(ymin = lower, ymax = upper), size = 2.5,
+                  alpha = 0.25, color = 'orangered4') +
+    geom_point(data = (df %>% top_n(-h)),
+               mapping = aes(time, methane),
+               color = 'red') +
+    theme_minimal() +
+    ggtitle(title) +
+    xlab('Time') + ylab('Methane Mixing Ratio') +
+    ylim(1701.5, 1907.5) +
+    xlim(as.POSIXct('2018-05-03 17:02:17', tz = 'UTC'),
+         as.POSIXct('2020-02-03 17:32:33', tz = 'UTC') + 604800*h + 1)
+  return(g)
+}

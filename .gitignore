@@ -6,9 +6,10 @@
 *.Rdata
 *.nc
 *.hdf
+*.csv
+*.xlsx
 users.sql
 
-methane.csv
 Figures/
 Documentation/
 Literature/
@@ -17,6 +18,7 @@ Presentations/
 Data/mask/h4tonccf_nc4
 Data/cows
 Data/landsat
+Data/shapefile
 
 Code/config/
 aux/
