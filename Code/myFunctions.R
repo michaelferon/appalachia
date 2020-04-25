@@ -309,7 +309,7 @@ gg.arima <- function(data, forecast, title, h = 4) {
   return(g)
 }
 
-fourier.df <- function(data, tbounds = c(1611.866, 1900.415), mbounds = c(0, 3591.538), type = 'daily', qa = 'marginal', k = 6) {
+fourier.df <- function(data, tsbounds = c(1800, 1907.252), mbounds = c(0, 683.1120), type = 'daily', k = 6) {
   if (type == 'daily') {
     mid <- 351
     time <- seq(as.Date('2018-05-01'), as.Date('2020-03-31'), by = 1)
@@ -363,21 +363,27 @@ fourier.df <- function(data, tbounds = c(1611.866, 1900.415), mbounds = c(0, 359
   )
   
   ts <- ggplot(df, aes(time, methane)) +
-    # geom_line(data = model, color = 'OrangeRed3',
-    #           alpha = 0.75, linetype = 'dashed') +
     geom_line(color = 'SteelBlue') +
     theme_minimal() +
     xlab('Time') + ylab('Methane Mixing Ratio') +
-    ylim(tbounds)
+    ylim(tsbounds)
   
-  df.trend <- df %>%
+  ts.trend <- ggplot(df, aes(time, methane)) +
+    geom_line(data = model, color = 'OrangeRed3',
+              alpha = 0.75, linetype = 'dashed') +
+    geom_line(color = 'SteelBlue') +
+    theme_minimal() +
+    xlab('Time') + ylab('Methane Mixing Ratio') +
+    ylim(tsbounds)
+  
+  df.adj <- df %>%
     mutate(methane = methane - model$methane + methaneMean)
   
-  ts.trend <- ggplot(df.trend, aes(time, methane)) +
+  ts.adj <- ggplot(df.adj, aes(time, methane)) +
     geom_line(color = 'SteelBlue') +
     theme_minimal() +
     xlab('Time') + ylab('Methane Mixing Ratio') +
-    ylim(tbounds)
+    ylim(tsbounds)
   
   hz <- seq(0, 1, length = nrow(df))
   if (type == 'daily') {
@@ -385,6 +391,7 @@ fourier.df <- function(data, tbounds = c(1611.866, 1900.415), mbounds = c(0, 359
   } else if (type == 'weekly') {
     hzMonth <- hz * 365/(7 * 12)
   }
+  
   df <- df %>%
     mutate_at('methane', function(x) x - mean(x)) %>%
     mutate(
@@ -399,6 +406,21 @@ fourier.df <- function(data, tbounds = c(1611.866, 1900.415), mbounds = c(0, 359
                   labels = c('Low', 'High'), include.lowest = TRUE)
       # group = factor(mod > 200, labels = c('Low', 'High'))
     )
+  df.adj <- df.adj %>%
+    mutate_at('methane', function(x) x - mean(x)) %>%
+    mutate(
+      fft = fft(methane),
+      mod = Mod(fft),
+      arg = Arg(fft),
+      hz = hz,
+      hzMonth = hzMonth,
+      period = 1/hz,
+      periodMonth = 1/hzMonth,
+      group = cut(mod, breaks = quantile(mod, probs = c(0, 0.95, 1)),
+                  labels = c('Low', 'High'), include.lowest = TRUE)
+      # group = factor(mod > 200, labels = c('Low', 'High'))
+    )
+  
   
   if (type == 'daily') {
     breaks = seq(0, 16, by = 1)
@@ -406,10 +428,19 @@ fourier.df <- function(data, tbounds = c(1611.866, 1900.415), mbounds = c(0, 359
     breaks = seq(0, 2.2, by = 0.2)
   }
   
-  # if (is.null(mbounds)) {
-  #   
-  # }
   g <- df %>% slice(1:mid) %>%
+    ggplot(aes(x = hzMonth, y = 0, xend = hzMonth, yend = mod, color = group)) +
+    scale_color_manual(values = c('SteelBlue', 'OrangeRed3')) +
+    geom_segment() +
+    # ggtitle('Frequency Spectrum') +
+    xlab(expression(paste('Frequency (months'^-1, ')'))) +
+    ylab('Magnitude, |z|') +
+    labs(color = 'Magnitude') +
+    scale_x_continuous(breaks = breaks) +
+    theme_minimal() +
+    theme(panel.grid.minor = element_blank()) +
+    ylim(mbounds)
+  g.adj <- df.adj %>% slice(1:mid) %>%
     ggplot(aes(x = hzMonth, y = 0, xend = hzMonth, yend = mod, color = group)) +
     scale_color_manual(values = c('SteelBlue', 'OrangeRed3')) +
     geom_segment() +
@@ -435,6 +466,20 @@ fourier.df <- function(data, tbounds = c(1611.866, 1900.415), mbounds = c(0, 359
     theme_minimal() +
     theme(panel.grid.minor = element_blank()) +
     ylim(mbounds)
+  p.adj <- df.adj %>% slice(1:mid) %>%
+    ggplot(aes(x = periodMonth, y = 0, xend = periodMonth,
+               yend = mod, color = group)) +
+    scale_color_manual(values = c('SteelBlue', 'OrangeRed3')) +
+    geom_segment() +
+    # ggtitle('Period Spectrum') +
+    xlab(expression(paste('Period, in days, on a log'[10], ' scale'))) +
+    ylab('Magnitude, |z|') +
+    labs(color = 'Magnitude') +
+    scale_x_log10(n.breaks = 12) +
+    theme_minimal() +
+    theme(panel.grid.minor = element_blank()) +
+    ylim(mbounds)
   
-  return(list(df = df, g = g, p = p, ts = ts, ts.trend = ts.trend))
+  return(list(df = df, g = g, p = p, ts = ts, ts.trend = ts.trend,
+              df.adj = df.adj, g.adj = g.adj, p.adj = p.adj, ts.adj = ts.adj))
 }

@@ -14,53 +14,40 @@ library(fields)
 
 rm(dateTimes)
 X <- X %>%
-  as_tibble
+  as_tibble %>%
+  filter(qa_value == 1.0)
 
 
 
-bounds <- c(1800, 1907.525)
-## Marginal QA.
-f.marginal <- fourier.df(X)
-
-pdf(file = '../figures/fourier/ts.pdf', height = 3.0, width = 10.0)
-f.marginal$ts
-dev.off()
-
-# pdf(file = '../figures/fourier/ts-trend.pdf', height = 3.0, width = 10.0)
-# f.marginal$ts.trend
-# dev.off()
-
-pdf(file = '../figures/fourier/frequency.pdf', height = 3.0, width = 10.0)
-f.marginal$g
-dev.off()
-
-pdf(file = '../figures/fourier/period.pdf', height = 3.0, width = 10.0)
-f.marginal$p
-dev.off()
-
-
-
-
+bounds <- c(1800, 1907.252)
 ## High QA.
-Z <- X %>% filter(qa_value == 1.0)
+f <- fourier.df(X, tsbounds = bounds, mbounds = c(0, 2830.564))
 
-f.high <- fourier.df(Z, tbounds = bounds, mbounds = c(0, 2830.564))
-
-pdf(file = '../figures/fourier/ts-high-qa.pdf', height = 3.0, width = 10.0)
-f.high$ts
+## Save figures.
+pdf(file = '../figures/fourier/ts.pdf', height = 3.0, width = 10.0)
+f$ts
+dev.off()
+pdf(file = '../figures/fourier/frequency.pdf', height = 3.0, width = 10.0)
+f$g
+dev.off()
+pdf(file = '../figures/fourier/period.pdf', height = 3.0, width = 10.0)
+f$p
 dev.off()
 
-# pdf(file = '../figures/fourier/ts-trend-high-qa.pdf', height = 3.0, width = 10.0)
-# f.high$ts.trend
-# dev.off()
-
-pdf(file = '../figures/fourier/frequency-high-qa.pdf', height = 3.0, width = 10.0)
-f.high$g
+pdf(file = '../figures/fourier/adjusted/ts-trend.pdf', height = 3.0, width = 10.0)
+f$ts.trend
+dev.off()
+pdf(file = '../figures/fourier/adjusted/ts-adj.pdf', height = 3.0, width = 10.0)
+f$ts.adj
+dev.off()
+pdf(file = '../figures/fourier/adjusted/frequency-adj.pdf', height = 3.0, width = 10.0)
+f$g.adj
+dev.off()
+pdf(file = '../figures/fourier/adjusted/period-adj.pdf', height = 3.0, width = 10.0)
+f$p.adj
 dev.off()
 
-pdf(file = '../figures/fourier/period-high-qa.pdf', height = 3.0, width = 10.0)
-f.high$p
-dev.off()
+
 
 
 ### Region-by-region.
@@ -101,126 +88,88 @@ for (i in 2:nrow(dfw)) {
 
 rm(dfw, wetlands, shp.data, in.haynesville, temp, i, h)
 
+
+
+
 ## Fourier transform.
-f.haynesville <- fourier.df(df.haynesville, type = 'weekly', mbounds = c(0, 797.9622), k = 2)
-f.wetlands <- fourier.df(df.wetlands, type = 'weekly', mbounds = c(0, 797.9622), k = 2)
-f.dfw <- fourier.df(df.dfw, type = 'weekly', mbounds = c(0, 797.9622), k = 2)
+mbounds <- c(0, 683.1120)
+f.haynesville <- fourier.df(df.haynesville, tsbounds = bounds, type = 'weekly', mbounds = mbounds, k = 2)
+f.wetlands <- fourier.df(df.wetlands, tsbounds = bounds, type = 'weekly', mbounds = mbounds, k = 2)
+f.dfw <- fourier.df(df.dfw, tsbounds = bounds, type = 'weekly', mbounds = mbounds, k = 2)
+
 
 ## Save figures.
 # Haynesville.
 pdf(file = '../figures/fourier/haynesville/haynesville-ts.pdf', height = 3.0, width = 10.0)
 f.haynesville$ts
 dev.off()
-
-# pdf(file = '../figures/fourier/haynesville/haynesville-ts-trend.pdf', height = 3.0, width = 10.0)
-# f.haynesville$ts.trend
-# dev.off()
-
 pdf(file = '../figures/fourier/haynesville/haynesville-frequency.pdf', height = 3.0, width = 10.0)
 f.haynesville$g
 dev.off()
-
 pdf(file = '../figures/fourier/haynesville/haynesville-period.pdf', height = 3.0, width = 10.0)
 f.haynesville$p
 dev.off()
+
+pdf(file = '../figures/fourier/adjusted/haynesville/haynesville-ts-trend.pdf', height = 3.0, width = 10.0)
+f.haynesville$ts.trend
+dev.off()
+pdf(file = '../figures/fourier/adjusted/haynesville/haynesville-ts-adj.pdf', height = 3.0, width = 10.0)
+f.haynesville$ts.adj
+dev.off()
+pdf(file = '../figures/fourier/adjusted/haynesville/haynesville-frequency-adj.pdf', height = 3.0, width = 10.0)
+f.haynesville$g.adj
+dev.off()
+pdf(file = '../figures/fourier/adjusted/haynesville/haynesville-period-adj.pdf', height = 3.0, width = 10.0)
+f.haynesville$p.adj
+dev.off()
+
 
 # Wetlands.
 pdf(file = '../figures/fourier/wetlands/wetlands-ts.pdf', height = 3.0, width = 10.0)
 f.wetlands$ts
 dev.off()
-
-# pdf(file = '../figures/fourier/wetlands/wetlands-ts-trend.pdf', height = 3.0, width = 10.0)
-# f.wetlands$ts.trend
-# dev.off()
-
 pdf(file = '../figures/fourier/wetlands/wetlands-frequency.pdf', height = 3.0, width = 10.0)
 f.wetlands$g
 dev.off()
-
 pdf(file = '../figures/fourier/wetlands/wetlands-period.pdf', height = 3.0, width = 10.0)
 f.wetlands$p
 dev.off()
+
+pdf(file = '../figures/fourier/adjusted/wetlands/wetlands-ts-trend.pdf', height = 3.0, width = 10.0)
+f.wetlands$ts.trend
+dev.off()
+pdf(file = '../figures/fourier/adjusted/wetlands/wetlands-ts-adj.pdf', height = 3.0, width = 10.0)
+f.wetlands$ts.adj
+dev.off()
+pdf(file = '../figures/fourier/adjusted/wetlands/wetlands-frequency-adj.pdf', height = 3.0, width = 10.0)
+f.wetlands$g.adj
+dev.off()
+pdf(file = '../figures/fourier/adjusted/wetlands/wetlands-period-adj.pdf', height = 3.0, width = 10.0)
+f.wetlands$p.adj
+dev.off()
+
 
 # DFW.
 pdf(file = '../figures/fourier/dfw/dfw-ts.pdf', height = 3.0, width = 10.0)
 f.dfw$ts
 dev.off()
-
-# pdf(file = '../figures/fourier/dfw/dfw-ts-trend.pdf', height = 3.0, width = 10.0)
-# f.dfw$ts.trend
-# dev.off()
-
 pdf(file = '../figures/fourier/dfw/dfw-frequency.pdf', height = 3.0, width = 10.0)
 f.dfw$g
 dev.off()
-
 pdf(file = '../figures/fourier/dfw/dfw-period.pdf', height = 3.0, width = 10.0)
 f.dfw$p
 dev.off()
 
-
-
-
-
-### High QA.
-df.haynesville <- df.haynesville %>% filter(qa_value == 1.0)
-df.wetlands <- df.wetlands %>% filter(qa_value == 1.0)
-df.dfw <- df.dfw %>% filter(qa_value == 1.0)
-
-## Fourier transform.
-f.haynesville <- fourier.df(df.haynesville, tbounds = bounds, type = 'weekly', mbounds = c(0, 676.6103), k = 2)
-f.wetlands <- fourier.df(df.wetlands, tbounds = bounds, type = 'weekly', mbounds = c(0, 676.6103), k = 2)
-f.dfw <- fourier.df(df.dfw, tbounds = bounds, type = 'weekly', mbounds = c(0, 676.6103), k = 2)
-
-## Save figures.
-# Haynesville.
-pdf(file = '../figures/fourier/haynesville/haynesville-ts-high-qa.pdf', height = 3.0, width = 10.0)
-f.haynesville$ts
+pdf(file = '../figures/fourier/adjusted/dfw/dfw-ts-trend.pdf', height = 3.0, width = 10.0)
+f.dfw$ts.trend
 dev.off()
-
-# pdf(file = '../figures/fourier/haynesville/haynesville-ts-trend-high-qa.pdf', height = 3.0, width = 10.0)
-# f.haynesville$ts.trend
-# dev.off()
-
-pdf(file = '../figures/fourier/haynesville/haynesville-frequency-high-qa.pdf', height = 3.0, width = 10.0)
-f.haynesville$g
+pdf(file = '../figures/fourier/adjusted/dfw/dfw-ts-adj.pdf', height = 3.0, width = 10.0)
+f.dfw$ts.adj
 dev.off()
-
-pdf(file = '../figures/fourier/haynesville/haynesville-period-high-qa.pdf', height = 3.0, width = 10.0)
-f.haynesville$p
+pdf(file = '../figures/fourier/adjusted/dfw/dfw-frequency-adj.pdf', height = 3.0, width = 10.0)
+f.dfw$g.adj
 dev.off()
-
-# Wetlands.
-pdf(file = '../figures/fourier/wetlands/wetlands-ts-high-qa.pdf', height = 3.0, width = 10.0)
-f.wetlands$ts
-dev.off()
-
-# pdf(file = '../figures/fourier/wetlands/wetlands-ts-trend-high-qa.pdf', height = 3.0, width = 10.0)
-# f.wetlands$ts.trend
-# dev.off()
-
-pdf(file = '../figures/fourier/wetlands/wetlands-frequency-high-qa.pdf', height = 3.0, width = 10.0)
-f.wetlands$g
-dev.off()
-
-pdf(file = '../figures/fourier/wetlands/wetlands-period-high-qa.pdf', height = 3.0, width = 10.0)
-f.wetlands$p
-dev.off()
-
-# DFW.
-pdf(file = '../figures/fourier/dfw/dfw-ts-high-qa.pdf', height = 3.0, width = 10.0)
-f.dfw$ts
-dev.off()
-
-# pdf(file = '../figures/fourier/dfw/dfw-ts-trend-high-qa.pdf', height = 3.0, width = 10.0)
-# f.dfw$ts.trend
-# dev.off()
-
-pdf(file = '../figures/fourier/dfw/dfw-frequency-high-qa.pdf', height = 3.0, width = 10.0)
-f.dfw$g
-dev.off()
-
-pdf(file = '../figures/fourier/dfw/dfw-period-high-qa.pdf', height = 3.0, width = 10.0)
+pdf(file = '../figures/fourier/adjusted/dfw/dfw-period.pdf', height = 3.0, width = 10.0)
 f.dfw$p
 dev.off()
 
