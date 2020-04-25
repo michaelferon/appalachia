@@ -57,13 +57,13 @@ df.qa <- na.omit(df.qa)
 width <- abs(mean(diff(lon)))
 height <- abs(mean(diff(lat)))
 
-pdf(file = '../Figures/qa.pdf', height = 5.0, width = 7.5)
+pdf(file = '../Figures/qa.pdf', height = 3.0, width = 4.5)
 basemap.hybrid +
   geom_tile(data = df.qa, height = height, width = width, alpha = 0.75,
             mapping = aes(x = longitude, y = latitude, fill = value)) +
   scale_fill_gradientn(colors = viridis(100), limits = c(0, 0.8)) +
   xlab('Longitude') + ylab('Latitude') +
-  theme(legend.key.height = unit(2.0, 'cm')) +
+  theme(legend.key.height = unit(1.0, 'cm')) +
   labs(fill = '')
 dev.off()
 rm(df.qa, value, ind, width, height)
@@ -96,7 +96,7 @@ image(x = lon, y = rev(lat), z = t(apply(full$mat, 2, rev)),
 US(add = TRUE, lwd = 2)
 
 g <- ggmap.prop.matrix(full$mat, lat, lon, basemap.hybrid, 'Daily')
-pdf(file = '../Figures/proportions/high-qa/propmat-high-qa.pdf', height = 5.0, width = 7.5)
+pdf(file = '../Figures/proportions/high-qa/propmat-high-qa.pdf', height = 3.0, width = 4.5)
 print(g)
 dev.off()
 

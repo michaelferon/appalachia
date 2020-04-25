@@ -39,7 +39,7 @@ ggmap(get_map(location = c(-100, 31.25), zoom = 6, maptype = 'satellite')) +
   scale_fill_gradientn(colors = magma(100))
 
 # pdf(file = '../Figures/TexasCattle.pdf', height = 6.31, width = 7.51)
-pdf(file = '../Figures/TexasCattle.pdf', height = 5.64, width = 7.51)
+pdf(file = '../Figures/TexasCattle.pdf', height = 5.0, width = 6.66)
 ggplot(df, aes(long, lat, group = group, fill = Cattle)) +
   geom_polygon() +
   theme(panel.grid = element_blank()) +
@@ -47,6 +47,7 @@ ggplot(df, aes(long, lat, group = group, fill = Cattle)) +
   labs(subtitle = 'in thousands', fill = '') + xlab('') + ylab('') +
   theme(panel.grid = element_blank()) +
   theme(axis.text = element_blank()) +
+  theme(legend.key.height = unit(1.5, 'cm')) +
   scale_fill_gradientn(colors = cividis(100))
 dev.off()
 

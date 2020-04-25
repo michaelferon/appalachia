@@ -11,6 +11,7 @@ library(ggmap)
 library(config)
 library(sp)
 library(rgdal)
+library(dplyr)
 
 # Get Google API key.
 info <- config::get(file = './config/config.yml')
@@ -32,19 +33,43 @@ lonBounds <- range(X$longitude)
 shale.map <- get.basemap('google', 'hybrid', lonBounds, latBounds)
 shale.map <- shale.map + geom_polygon(data = df, aes(long, lat), size = 0.3, alpha = 0.3,
                                       color = 'white', fill = 'orangered4')
-shale.map <- shale.map + ggtitle('The Haynesville-Bossier Shale')
+shale.map <- shale.map #+ ggtitle('The Haynesville-Bossier Shale')
 shale.map <- shale.map + xlab('Longitude') + ylab('Latitude')
-pdf(file = '../Figures/Haynesville-Bossier.pdf', height = 6.5, width = 8)
+pdf(file = '../Figures/Haynesville-Bossier.pdf', height = 3.0, width = 4.125)
 print(shale.map)
 dev.off()
+  
+
 
 
 # Sattelite view.
 sat.map <- get.basemap('google', 'satellite', lonBounds, latBounds)
-sat.map <- sat.map + ggtitle('Satellite View')
+sat.map <- sat.map #+ ggtitle('Satellite View')
 sat.map <- sat.map + xlab('Longitude') + ylab('Latitude')
-pdf(file = '../Figures/satellite.pdf', height = 6.5, width = 8)
+pdf(file = '../Figures/satellite.pdf', height = 3.0, width = 4.125)
 print(sat.map)
+dev.off()
+
+
+
+
+RESO <- 2
+latTicks <- seq(latBounds[1], latBounds[2], length = RESO + 1)[-1] %>% .[-RESO]
+lonTicks <- seq(lonBounds[1], lonBounds[2], length = RESO + 1)[-1] %>% .[-RESO]
+pdf(file = '../Figures/4qmap.pdf', height = 3.0, width = 4.125)
+shale.map +
+  geom_vline(xintercept = lonTicks, size = 0.50) +
+  geom_hline(yintercept = latTicks, size = 0.50)
+dev.off()
+
+RESO <- 100
+latTicks <- seq(latBounds[1], latBounds[2], length = RESO + 1)[-1] %>% .[-RESO]
+lonTicks <- seq(lonBounds[1], lonBounds[2], length = RESO + 1)[-1] %>% .[-RESO]
+pdf(file = '../Figures/highqmap.pdf', height = 3.0, width = 4.125)
+# ggmap(get_map(c(-94, 32), zoom = 8, maptype = 'hybrid'))
+shale.map +
+  geom_vline(xintercept = lonTicks, size = 0.20) +
+  geom_hline(yintercept = latTicks, size = 0.20)
 dev.off()
 
 

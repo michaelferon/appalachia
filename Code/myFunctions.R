@@ -124,7 +124,7 @@ ggmap.prop.matrix <- function(prop.mat, lat, lon, basemap, type, pTitle = NULL, 
                      mapping = aes(x = longitude, y = latitude, fill = value))
   g <- g + scale_fill_gradientn(colors = hcl.colors(16, "YlOrRd", rev = TRUE))
   g <- g + xlab('Longitude') + ylab('Latitude')
-  g <- g + theme(legend.key.height = unit(2.00, 'cm'))
+  g <- g + theme(legend.key.height = unit(1.0, 'cm'))
   g <- g + labs(fill = '')
   
   return(g)
@@ -227,7 +227,7 @@ ggmap.geom_tile <- function(df, basemap, height, width, t, zLim) {
                                    fill = methane_mixing_ratio_bias_corrected))
   g <- g + scale_fill_gradientn(colors = tim.colors(64), limits = zLim)
   g <- g + xlab('Longitude') + ylab('Latitude')
-  g <- g + theme(legend.key.height = unit(2.0, 'cm'))
+  g <- g + theme(legend.key.height = unit(1.0, 'cm'))
   g <- g + labs(fill = '')
   return(g)
 }
@@ -307,4 +307,134 @@ gg.arima <- function(data, forecast, title, h = 4) {
     xlim(as.POSIXct('2018-05-03 17:02:17', tz = 'UTC'),
          as.POSIXct('2020-02-03 17:32:33', tz = 'UTC') + 604800*h + 1)
   return(g)
+}
+
+fourier.df <- function(data, tbounds = c(1611.866, 1900.415), mbounds = c(0, 3591.538), type = 'daily', qa = 'marginal', k = 6) {
+  if (type == 'daily') {
+    mid <- 351
+    time <- seq(as.Date('2018-05-01'), as.Date('2020-03-31'), by = 1)
+    fact <- my.yday(data$time_utc)
+  } else if (type == 'weekly') {
+    mid <- 51
+    time = seq(as.Date('2018-05-02'), as.Date('2020-03-31'), length = 100)
+    fact <- my.week(data$time_utc)
+    fact[fact == '2018-53'] <- '2018-52'
+    fact[fact == '2019-53'] <- '2019-52'
+  }
+  df <- tibble(
+    time = time,
+    methane = as.numeric(NA)
+  )
+  vec <- tapply(
+    data$methane_mixing_ratio_bias_corrected,
+    fact,
+    mean
+  )
+  
+  for (i in 1:length(vec)) {
+    if (type == 'daily') {
+      df$methane[my.yday(df$time) == names(vec)[i]] <- vec[i]
+    } else if (type == 'weekly') {
+      df$methane[my.week(df$time) == names(vec)[i]] <- vec[i]
+    }
+  }
+  
+  for (i in 1:nrow(df)) {
+    a <- i - k
+    b <- i + k
+    if (a < 1) {
+      b <- b + abs(a) + 1
+      a <- a + abs(a) + 1
+    }
+    if (b > nrow(df)) {
+      a <- a + nrow(df) - b
+      b <- nrow(df)
+    }
+    if (is.na(df$methane[i])) {
+      df$methane[i] <- mean(df$methane[a:b], na.rm = TRUE)
+    }
+  }
+  
+  methaneMean <- mean(df$methane)
+  x <- seq(1, nrow(df), by = 1)
+  model <- tibble(
+    time = df$time,
+    methane = lm(df$methane ~ x)$fitted.values
+  )
+  
+  ts <- ggplot(df, aes(time, methane)) +
+    # geom_line(data = model, color = 'OrangeRed3',
+    #           alpha = 0.75, linetype = 'dashed') +
+    geom_line(color = 'SteelBlue') +
+    theme_minimal() +
+    xlab('Time') + ylab('Methane Mixing Ratio') +
+    ylim(tbounds)
+  
+  df.trend <- df %>%
+    mutate(methane = methane - model$methane + methaneMean)
+  
+  ts.trend <- ggplot(df.trend, aes(time, methane)) +
+    geom_line(color = 'SteelBlue') +
+    theme_minimal() +
+    xlab('Time') + ylab('Methane Mixing Ratio') +
+    ylim(tbounds)
+  
+  hz <- seq(0, 1, length = nrow(df))
+  if (type == 'daily') {
+    hzMonth  <- hz * 365/12
+  } else if (type == 'weekly') {
+    hzMonth <- hz * 365/(7 * 12)
+  }
+  df <- df %>%
+    mutate_at('methane', function(x) x - mean(x)) %>%
+    mutate(
+      fft = fft(methane),
+      mod = Mod(fft),
+      arg = Arg(fft),
+      hz = hz,
+      hzMonth = hzMonth,
+      period = 1/hz,
+      periodMonth = 1/hzMonth,
+      group = cut(mod, breaks = quantile(mod, probs = c(0, 0.95, 1)),
+                  labels = c('Low', 'High'), include.lowest = TRUE)
+      # group = factor(mod > 200, labels = c('Low', 'High'))
+    )
+  
+  if (type == 'daily') {
+    breaks = seq(0, 16, by = 1)
+  } else if (type == 'weekly') {
+    breaks = seq(0, 2.2, by = 0.2)
+  }
+  
+  # if (is.null(mbounds)) {
+  #   
+  # }
+  g <- df %>% slice(1:mid) %>%
+    ggplot(aes(x = hzMonth, y = 0, xend = hzMonth, yend = mod, color = group)) +
+    scale_color_manual(values = c('SteelBlue', 'OrangeRed3')) +
+    geom_segment() +
+    # ggtitle('Frequency Spectrum') +
+    xlab(expression(paste('Frequency (months'^-1, ')'))) +
+    ylab('Magnitude, |z|') +
+    labs(color = 'Magnitude') +
+    scale_x_continuous(breaks = breaks) +
+    theme_minimal() +
+    theme(panel.grid.minor = element_blank()) +
+    ylim(mbounds)
+  
+  p <- df %>% slice(1:mid) %>%
+    ggplot(aes(x = periodMonth, y = 0, xend = periodMonth,
+               yend = mod, color = group)) +
+    scale_color_manual(values = c('SteelBlue', 'OrangeRed3')) +
+    geom_segment() +
+    # ggtitle('Period Spectrum') +
+    xlab(expression(paste('Period, in days, on a log'[10], ' scale'))) +
+    ylab('Magnitude, |z|') +
+    labs(color = 'Magnitude') +
+    scale_x_log10(n.breaks = 12) +
+    theme_minimal() +
+    theme(panel.grid.minor = element_blank()) +
+    ylim(mbounds)
+  
+  return(list(df = df, g = g, p = p, ts = ts, ts.trend = ts.trend))
 }

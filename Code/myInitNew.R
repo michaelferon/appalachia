@@ -14,9 +14,9 @@ rm( list = ls() )
 library(ncdf4)
 library(lubridate)
 
-file_path = "/Volumes/SSD/Appalachia/Data/data-full/data"
-outfile_name = "/Volumes/SSD/Appalachia/Data/data-full/varDictFull.Rdata"
-file_names = list.files(file_path)[1:1000]
+file_path = "/Volumes/SSD/Appalachia/Data/data-full/data-new"
+outfile_name = "/Volumes/SSD/Appalachia/Data/data-full/varDictNew.Rdata"
+file_names = list.files(file_path)[1:97]
 ".DS_Store" %in% file_names
 any(is.na(file_names))
 length(file_names)
@@ -55,9 +55,9 @@ for(l in 1:length(input_vars_to_sample)){
 }
 # R also doesn't have dictionaries, but lists can be a good approximation. we'll call it a dictionary for consistency.
 # initialize the variables
-var_dict = vector(mode="list", length = 34)
+var_dict_new = vector(mode="list", length = 34)
 additional_var_names = c("latitude_ll", "longitude_ll", "latitude_lr", "longitude_lr", "latitude_ur", "longitude_ur", "latitude_ul", "longitude_ul")
-names(var_dict) = c(product_vars_to_sample, geo_vars_to_sample, detailed_vars_to_sample, input_vars_to_sample, additional_var_names)
+names(var_dict_new) = c(product_vars_to_sample, geo_vars_to_sample, detailed_vars_to_sample, input_vars_to_sample, additional_var_names)
 
 
 OBS_EXIST = FALSE
@@ -107,14 +107,14 @@ for(file_name in file_names){
     # LB: reading in variables names in. python reverses the order of the dimensions compared to R. R goes smallest to largest.
     # So here, we read in slices of 3d tensors (lat_e, lon_e), flatten them, and select the locations that have valid entries w/ loc_inds
     # loc_inds should work here b/c lat etc. are falttened same way with c() in column-major format.
-    # var_dict$latitude_ll = c(lat_e[1,,])[loc_inds]
-    # var_dict$longitude_ll = c(lon_e[1,,])[loc_inds]
-    # var_dict$latitude_lr = c(lat_e[2,,])[loc_inds]
-    # var_dict$longitude_lr = c(lon_e[2,,])[loc_inds]
-    # var_dict$latitude_ur = c(lat_e[3,,])[loc_inds]
-    # var_dict$longitude_ur = c(lon_e[3,,])[loc_inds]
-    # var_dict$latitude_ul = c(lat_e[4,,])[loc_inds]
-    # var_dict$longitude_ul = c(lon_e[4,,])[loc_inds]
+    # var_dict_new$latitude_ll = c(lat_e[1,,])[loc_inds]
+    # var_dict_new$longitude_ll = c(lon_e[1,,])[loc_inds]
+    # var_dict_new$latitude_lr = c(lat_e[2,,])[loc_inds]
+    # var_dict_new$longitude_lr = c(lon_e[2,,])[loc_inds]
+    # var_dict_new$latitude_ur = c(lat_e[3,,])[loc_inds]
+    # var_dict_new$longitude_ur = c(lon_e[3,,])[loc_inds]
+    # var_dict_new$latitude_ul = c(lat_e[4,,])[loc_inds]
+    # var_dict_new$longitude_ul = c(lon_e[4,,])[loc_inds]
     
     for(v in vars_to_sample){
       split_v_string = strsplit(v, "/")
@@ -129,23 +129,23 @@ for(file_name in file_names){
           time_interval_obj = interval(start_time, t)
           tmp_time_in_seconds_vec[s] = time_interval_obj@.Data
         }
-        var_dict[[v_trunc]] = append(var_dict[[v_trunc]], tmp_time_in_seconds_vec)
+        var_dict_new[[v_trunc]] = append(var_dict_new[[v_trunc]], tmp_time_in_seconds_vec)
       } else if (v %in% c("INPUT_DATA/northward_wind", "INPUT_DATA/eastward_wind")) {
-          check_wind <- tryCatch(
-            { wind <- c(ncvar_get(nc_data, v));
-              var_dict[[v_trunc]] <- append(var_dict[[v_trunc]], wind[loc_inds]); },
-            error = function(e) {
-              print("No wind data found.");
-              return(NULL)
-            }
-          )
-          if (is.null(check_wind)) {
-            z <- rep(999, num_locs);
-            var_dict[[v_trunc]] <- append(var_dict[[v_trunc]], z);
+        check_wind <- tryCatch(
+          { wind <- c(ncvar_get(nc_data, v));
+          var_dict_new[[v_trunc]] <- append(var_dict_new[[v_trunc]], wind[loc_inds]); },
+          error = function(e) {
+            print("No wind data found.");
+            return(NULL)
           }
+        )
+        if (is.null(check_wind)) {
+          z <- rep(999, num_locs);
+          var_dict_new[[v_trunc]] <- append(var_dict_new[[v_trunc]], z);
+        }
       } else {
-          sampled_var = c(ncvar_get(nc_data, v))
-          var_dict[[v_trunc]] = append(var_dict[[v_trunc]], sampled_var[loc_inds])
+        sampled_var = c(ncvar_get(nc_data, v))
+        var_dict_new[[v_trunc]] = append(var_dict_new[[v_trunc]], sampled_var[loc_inds])
       }
     }
   }
@@ -156,5 +156,5 @@ if(!OBS_EXIST){
   print("No valid observations founds!")
 }
 
-## write var_dict to .Rdata object.
-save(var_dict, file = outfile_name)
+## write var_dict_new to .Rdata object.
+save(var_dict_new, file = outfile_name)

@@ -34,10 +34,11 @@ water <- water + scale_y_continuous(limits = latBounds, expand = c(0, 0))
 water <- water +
   geom_point(data = mask.water, mapping = aes(x = longitude, y = latitude),
              color = 'blue', size = 0.1, stroke = 0, shape = 16) +
-  ggtitle('Land Water Mask') + xlab('Longitude') + ylab('Latitude')
-# pdf(file = '../Figures/mask.pdf', height = 6.5, width = 8.0)
-# print(water)
-# dev.off()
+  #ggtitle('Land Water Mask') +
+  xlab('Longitude') + ylab('Latitude')
+pdf(file = '../Figures/mask.pdf', height = 3.0, width = 4.125)
+print(water)
+dev.off()
 
 
 
@@ -114,7 +115,7 @@ US(add = TRUE, lwd = 2)
 # Heatmap with geo-map underlaid.
 g <- ggmap.prop.matrix(full$mat, lat, lon, basemap.hybrid, 'Daily',
                        pTitle = 'Mask Adjusted Daily Elevated Methane Levels')
-pdf(file = '../Figures/proportions/mask-adjusted/propmat-mask.pdf', height = 5.0, width = 7.5)
+pdf(file = '../Figures/proportions/mask-adjusted/propmat-mask.pdf', height = 3.0, width = 4.5)
 print(g)
 dev.off()
 

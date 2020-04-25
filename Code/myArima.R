@@ -11,7 +11,7 @@ library(sp) ## Michael's shapefile stuff.
 library(rgdal) ## This too.
 library(ggplot2)
 
-source('functions.R')
+source('myFunctions.R')
 
 # load the adhoc region masks
 DFW.AUS = read.csv('../Data/ARIMA/DFW_AUS.csv')
@@ -55,7 +55,7 @@ for (i in 2:nrow(DFW.AUS)) {
 }
 
 ## PLOTS
-pdf(file = "../Figures/ARIMA Model Plots/Haynesville.pdf", height = 6.5, width = 8.0)
+pdf(file = "../Figures/ARIMA Model Plots/Haynesville.pdf", height = 4.25, width = 10.0)
 quilt.plot(df.Haynesville$longitude, df.Haynesville$latitude,
            df.Haynesville$methane_mixing_ratio_bias_corrected,
            xlim = range(X$longitude), ylim = range(X$latitude),
@@ -65,7 +65,7 @@ title("Haynesville Methane Mixing Ratios")
 US(add = TRUE)
 dev.off()
 
-pdf(file = "../Figures/ARIMA Model Plots/Wetlands.pdf", height = 6.5, width = 8.0)
+pdf(file = "../Figures/ARIMA Model Plots/Wetlands.pdf", height = 4.25, width = 10.0)
 quilt.plot(df.Wetlands$longitude, df.Wetlands$latitude,
            df.Wetlands$methane_mixing_ratio_bias_corrected,
            xlim = range(X$longitude), ylim = range(X$latitude),
@@ -75,7 +75,7 @@ title("Wetlands Methane Mixing Ratios")
 US(add = TRUE)
 dev.off()
 
-pdf(file = "../Figures/ARIMA Model Plots/DFWAUS.pdf", height = 6.5, width = 8.0)
+pdf(file = "../Figures/ARIMA Model Plots/DFWAUS.pdf", height = 4.25, width = 10.0)
 quilt.plot(df.DFW.AUS$longitude, df.DFW.AUS$latitude,
            df.DFW.AUS$methane_mixing_ratio_bias_corrected,
            xlim = range(X$longitude), ylim = range(X$latitude),
@@ -124,16 +124,18 @@ Haynesville.Forecast = forecast(Haynesville.ARIMA, h=4)
 x <- arima.Haynesville$time
 for (i in 1:4) { x <- c(x, x[length(x)] + 604800) }
 y <- c(arima.Haynesville$methane, Haynesville.Forecast$mean)
-pdf(file = "../Figures/ARIMA Model Plots/Haynesville-ARIMA.pdf", height = 6.5, width = 8.0)
+pdf(file = "../Figures/ARIMA Model Plots/Haynesville-ARIMA.pdf", height = 4.25, width = 10.0)
+par(mar = c(5, 4, 1, 2) + 0.1)
 plot(arima.Haynesville$time, arima.Haynesville$methane, type = 'l',
-     xlab = "Time", ylab = "Methane Mixing Ratios Bias Corrected", 
-     main = "1 Month Haynesville Forecast",
-     xlim = range(x))
+     xlab = "Time", ylab = "Methane Mixing Ratio", 
+     # main = "1 Month Haynesville Forecast",
+     xlim = range(x),
+     ylim = c(1700, 1950))
 lines(tail(x, 5), tail(y, 5), col = 'red')
 points(tail(x, 4), tail(y, 4), col = 'red')
 dev.off()
 # GGPLOT version.
-pdf(file = '../Figures/ARIMA Model Plots/gg/Haynesville-ARIMA.pdf', height = 4.0, width = 10.0)
+pdf(file = '../Figures/ARIMA Model Plots/gg/Haynesville-ARIMA.pdf', height = 4.25, width = 10.0)
 gg.arima(arima.Haynesville, Haynesville.Forecast,
          title = '1 Month Haynesville Forecast')
 dev.off()
@@ -143,16 +145,18 @@ DFW.AUS.Forecast = forecast(DFW.AUS.ARIMA, h=4)
 x <- arima.DFW.AUS$time
 for (i in 1:4) { x <- c(x, x[length(x)] + 604800) }
 y <- c(arima.DFW.AUS$methane, DFW.AUS.Forecast$mean)
-pdf(file = "../Figures/ARIMA Model Plots/DFWAUS-ARIMA.pdf", height = 6.5, width = 8.0)
+pdf(file = "../Figures/ARIMA Model Plots/DFWAUS-ARIMA.pdf", height = 4.25, width = 10.0)
+par(mar = c(5, 4, 1, 2) + 0.1)
 plot(arima.DFW.AUS$time, arima.DFW.AUS$methane, type = 'l',
-     xlab = "Time", ylab = "Methane Mixing Ratios Bias Corrected", 
-     main = "1 Month Dallas-Fort Worth to Austin Forecast",
-     xlim = range(x))
+     xlab = "Time", ylab = "Methane Mixing Ratio", 
+     # main = "1 Month Dallas-Fort Worth to Austin Forecast",
+     xlim = range(x),
+     ylim = c(1700, 1950))
 lines(tail(x, 5), tail(y, 5), col = 'red')
 points(tail(x, 4), tail(y, 4), col = 'red')
 dev.off()
 # GGPLOT version.
-pdf(file = '../Figures/ARIMA Model Plots/gg/DFWAUS-ARIMA.pdf', height = 4.0, width = 10.0)
+pdf(file = '../Figures/ARIMA Model Plots/gg/DFWAUS-ARIMA.pdf', height = 4.25, width = 10.0)
 gg.arima(arima.DFW.AUS, DFW.AUS.Forecast,
          title = '1 Month Dallas-Fort Worth to Austin Forecast')
 dev.off()
@@ -163,16 +167,18 @@ Wetlands.Forecast = forecast(Wetlands.ARIMA, h=4)
 x <- arima.Wetlands$time
 for (i in 1:4) { x <- c(x, x[length(x)] + 604800) }
 y <- c(arima.Wetlands$methane, Wetlands.Forecast$mean)
-pdf(file = "../Figures/ARIMA Model Plots/Wetlands-ARIMA.pdf", height = 6.5, width = 8.0)
+pdf(file = "../Figures/ARIMA Model Plots/Wetlands-ARIMA.pdf", height = 4.25, width = 10.0)
+par(mar = c(5, 4, 1, 2) + 0.1)
 plot(arima.Wetlands$time, arima.Wetlands$methane, type = 'l',
-     xlab = "Time", ylab = "Methane Mixing Ratios Bias Corrected", 
-     main = "1 Month Wetlands Forecast",
-     xlim = range(x))
+     xlab = "Time", ylab = "Methane Mixing Ratio", 
+     # main = "1 Month Wetlands Forecast",
+     xlim = range(x),
+     ylim = c(1700, 1950))
 lines(tail(x, 5), tail(y, 5), col = 'red')
 points(tail(x, 4), tail(y, 4), col = 'red')
 dev.off()
 # GGPLOT version.
-pdf(file = '../Figures/ARIMA Model Plots/gg/Wetlands-ARIMA.pdf', height = 4.0, width = 10.0)
+pdf(file = '../Figures/ARIMA Model Plots/gg/Wetlands-ARIMA.pdf', height = 4.25, width = 10.0)
 gg.arima(arima.Wetlands, Wetlands.Forecast,
          title = '1 Month Wetlands Forecast')
 dev.off()
@@ -209,16 +215,18 @@ Haynesville.Forecast = forecast(Haynesville.ARIMA, h=4)
 x <- arima.Haynesville$time
 for (i in 1:4) { x <- c(x, x[length(x)] + 604800) }
 y <- c(arima.Haynesville$methane, Haynesville.Forecast$mean)
-pdf(file = "../Figures/ARIMA Model Plots/Haynesville-ARIMA-qa1.pdf", height = 6.5, width = 8.0)
+pdf(file = "../Figures/ARIMA Model Plots/Haynesville-ARIMA-qa1.pdf", height = 4.25, width = 10.0)
+par(mar = c(5, 4, 1, 2) + 0.1)
 plot(arima.Haynesville$time, arima.Haynesville$methane, type = 'l',
-     xlab = "Time", ylab = "Methane Mixing Ratios Bias Corrected", 
-     main = "1 Month Haynesville Forecast",
-     xlim = range(x))
+     xlab = "Time", ylab = "Methane Mixing Ratio", 
+     # main = "1 Month Haynesville Forecast",
+     xlim = range(x),
+     ylim = c(1800, 1950))
 lines(tail(x, 5), tail(y, 5), col = 'red')
 points(tail(x, 4), tail(y, 4), col = 'red')
 dev.off()
 # GGPLOT version.
-pdf(file = '../Figures/ARIMA Model Plots/gg/Haynesville-ARIMA-qa1.pdf', height = 4.0, width = 10.0)
+pdf(file = '../Figures/ARIMA Model Plots/gg/Haynesville-ARIMA-qa1.pdf', height = 4.25, width = 10.0)
 gg.arima(arima.Haynesville, Haynesville.Forecast,
          title = 'High QA - 1 Month Haynesville Forecast')
 dev.off()
@@ -229,16 +237,18 @@ DFW.AUS.Forecast = forecast(DFW.AUS.ARIMA, h=4)
 x <- arima.DFW.AUS$time
 for (i in 1:4) { x <- c(x, x[length(x)] + 604800) }
 y <- c(arima.DFW.AUS$methane, DFW.AUS.Forecast$mean)
-pdf(file = "../Figures/ARIMA Model Plots/DFWAUS-ARIMA-qa1.pdf", height = 6.5, width = 8.0)
+pdf(file = "../Figures/ARIMA Model Plots/DFWAUS-ARIMA-qa1.pdf", height = 4.25, width = 10.0)
+par(mar = c(5, 4, 1, 2) + 0.1)
 plot(arima.DFW.AUS$time, arima.DFW.AUS$methane, type = 'l',
-     xlab = "Time", ylab = "Methane Mixing Ratios Bias Corrected", 
-     main = "1 Month Dallas-Fort Worth to Austin Forecast",
-     xlim = range(x))
+     xlab = "Time", ylab = "Methane Mixing Ratio", 
+     # main = "1 Month Dallas-Fort Worth to Austin Forecast",
+     xlim = range(x),
+     ylim = c(1800, 1950))
 lines(tail(x, 5), tail(y, 5), col = 'red')
 points(tail(x, 4), tail(y, 4), col = 'red')
 dev.off()
 # GGPLOT version.
-pdf(file = '../Figures/ARIMA Model Plots/gg/DFWAUS-ARIMA-qa1.pdf', height = 4.0, width = 10.0)
+pdf(file = '../Figures/ARIMA Model Plots/gg/DFWAUS-ARIMA-qa1.pdf', height = 4.25, width = 10.0)
 gg.arima(arima.DFW.AUS, DFW.AUS.Forecast,
          title = 'High QA - 1 Month Dallas-Fort Worth to Austin Forecast')
 dev.off()
@@ -249,16 +259,18 @@ Wetlands.Forecast = forecast(Wetlands.ARIMA, h=4)
 x <- arima.Wetlands$time
 for (i in 1:4) { x <- c(x, x[length(x)] + 604800) }
 y <- c(arima.Wetlands$methane, Wetlands.Forecast$mean)
-pdf(file = "../Figures/ARIMA Model Plots/Wetlands-ARIMA-qa1.pdf", height = 6.5, width = 8.0)
+pdf(file = "../Figures/ARIMA Model Plots/Wetlands-ARIMA-qa1.pdf", height = 4.25, width = 10.0)
+par(mar = c(5, 4, 1, 2) + 0.1)
 plot(arima.Wetlands$time, arima.Wetlands$methane, type = 'l',
-     xlab = "Time", ylab = "Methane Mixing Ratios Bias Corrected", 
-     main = "1 Month Wetlands Forecast",
-     xlim = range(x))
+     xlab = "Time", ylab = "Methane Mixing Ratio", 
+     # main = "1 Month Wetlands Forecast",
+     xlim = range(x),
+     ylim = c(1800, 1950))
 lines(tail(x, 5), tail(y, 5), col = 'red')
 points(tail(x, 4), tail(y, 4), col = 'red')
 dev.off()
 # GGPLOT version.
-pdf(file = '../Figures/ARIMA Model Plots/gg/Wetlands-ARIMA-qa1.pdf', height = 4.0, width = 10.0)
+pdf(file = '../Figures/ARIMA Model Plots/gg/Wetlands-ARIMA-qa1.pdf', height = 4.25, width = 10.0)
 gg.arima(arima.Wetlands, Wetlands.Forecast,
          title = 'High QA - 1 Month Wetlands Forecast')
 dev.off()

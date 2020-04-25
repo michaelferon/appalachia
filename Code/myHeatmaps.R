@@ -66,7 +66,7 @@ US(add = TRUE, lwd = 2)
 
 # Heatmap with geo-map underlaid.
 g <- ggmap.prop.matrix(full$mat, lat, lon, basemap.hybrid, 'Daily')
-pdf(file = '../Figures/proportions/propmat.pdf', height = 5.0, width = 7.5)
+pdf(file = '../Figures/proportions/propmat.pdf', height = 3.0, width = 4.5)
 print(g)
 dev.off()
 

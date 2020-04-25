@@ -122,21 +122,31 @@ df2 <- tibble(
 height = abs(mean(diff(lat)))
 width = abs(mean(diff(lon)))
 
+pdf(file = '../figures/wind/wind.pdf', height = 3.0, width = 4.5)
 basemap.hybrid +
   geom_tile(
     data = df,
     mapping = aes(x = longitude, y = latitude, fill = methane),
     height = height, width = width, alpha = 0.65
   ) +
-  scale_fill_gradientn(colors = magma(100), limits = c(-50, 50))
+  scale_fill_gradientn(colors = magma(100), limits = c(-50, 50)) +
+  xlab('Longitude') + ylab('Latitude') +
+  theme(legend.key.height = unit(2.0, 'cm')) +
+  labs(fill = '')
+dev.off()
 
+pdf(file = '../figures/wind/Methane.pdf', height = 3.0, width = 4.5)
 basemap.hybrid +
   geom_tile(
     data = df2,
     mapping = aes(x = longitude, y = latitude, fill = methane2),
     height = height, width = width, alpha = 0.65
   ) +
-  scale_fill_gradientn(colors = magma(100), limits = c(1825, 1890))
+  scale_fill_gradientn(colors = magma(100), limits = c(1825, 1890)) +
+  xlab('Longitude') + ylab('Latitude') +
+  theme(legend.key.height = unit(2.0, 'cm')) +
+  labs(fill = '')
+dev.off()
 
 
 ## NEW STUFF.

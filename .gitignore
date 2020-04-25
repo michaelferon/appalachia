@@ -19,6 +19,7 @@ Data/mask/h4tonccf_nc4
 Data/cows
 Data/landsat
 Data/shapefile
+Data/population
 
 Code/config/
 aux/
