@@ -40,8 +40,6 @@ print(shale.map)
 dev.off()
   
 
-
-
 # Sattelite view.
 sat.map <- get.basemap('google', 'satellite', lonBounds, latBounds)
 sat.map <- sat.map #+ ggtitle('Satellite View')
@@ -66,10 +64,26 @@ RESO <- 100
 latTicks <- seq(latBounds[1], latBounds[2], length = RESO + 1)[-1] %>% .[-RESO]
 lonTicks <- seq(lonBounds[1], lonBounds[2], length = RESO + 1)[-1] %>% .[-RESO]
 pdf(file = '../Figures/highqmap.pdf', height = 3.0, width = 4.125)
-# ggmap(get_map(c(-94, 32), zoom = 8, maptype = 'hybrid'))
-shale.map +
-  geom_vline(xintercept = lonTicks, size = 0.20) +
-  geom_hline(yintercept = latTicks, size = 0.20)
+temp <- get_map(location = c(mean(lonBounds), mean(latBounds)), color = 'bw',
+                source = 'stamen', maptype = 'terrain-background', zoom = 6)
+temp %>%
+  ggmap +
+  scale_x_continuous(limits = lonBounds, expand = c(0, 0)) +
+  scale_y_continuous(limits = latBounds, expand = c(0, 0)) +
+  geom_polygon(data = df, aes(long, lat), size = 0.3, alpha = 0.3,
+               color = 'white', fill = 'orangered4') +
+  xlab('Longitude') + ylab('Latitude') +
+  geom_vline(xintercept = lonTicks, size = 0.01) +
+  geom_hline(yintercept = latTicks, size = 0.01)
 dev.off()
+
+
+
+
+
+
+
+
+
 
 

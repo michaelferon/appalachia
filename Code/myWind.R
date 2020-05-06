@@ -16,9 +16,7 @@ info <- config::get(file = './config/config.yml')
 ggmap::register_google(info$google_api_key)
 rm(info)
 
-#FIXME Implement as function to allow for easy calling of different time shifts
 load('../data/data-full/dataFullMask.Rdata')
-X$time_utc <- as.POSIXct(X$time_utc)
 X <- X %>% filter(time_utc >= as.POSIXct('2019-03-20', tz = 'UTC'))
 rm(dateTimes)
 
@@ -30,7 +28,6 @@ time_shift = 24
 #Initialize X_wind
 X_wind = X
 
-X_wind = X
 #69 (roughly) represents number of miles in 1 degree latitude.
 #Difficult to calculate exactly like for longitude, but 69 should be an accurate enough measurement for our purposes
 X_wind[,'latitude'] = X[,'latitude'] + (1/69)*(2.237) *time_shift * X[,'eastward_wind']
@@ -44,20 +41,17 @@ X_wind[,'longitude'] = X[,'longitude'] + (1/69.172)*(2.237) * cos(X[,'latitude']
 X_wind[,'time'] = X[,'time'] + 60*60*time_shift
 X_wind[,'time_utc'] = X[,'time_utc'] + 60*60*time_shift
 
-#FIXME  
-#X_wind should probably be cleaned here; wind speed, surface altitude, quadrant no longer meaningful
-#I'll wait to make changes until we know how we want to use the data
-
-X <- X %>% filter(time_utc >= as.POSIXct('2018-05-02', tz = 'UTC'))
-X_wind <- X_wind %>% filter(time_utc < as.POSIXct('2020-02-01', tz = 'UTC'))
+#Remove any data that occured before april 1
+X_wind <- X_wind %>% filter(time_utc < as.POSIXct('2020-04-01', tz = 'UTC'))
 
 
-## Setup.
+## Setup the boundries for the quilt plot
 latBounds <- range(X$latitude)
 lonBounds <- range(X$longitude)
 basemap.hybrid <- get.basemap('google', 'hybrid', lonBounds, latBounds)
 
-RESO <- 75
+#Set the resolution of the quilt plot, create the subregions
+RESO <- 50
 latTicks <- seq(latBounds[1], latBounds[2], length = RESO + 1)
 lonTicks <- seq(lonBounds[1], lonBounds[2], length = RESO + 1)
 X <- assign.quadrants(X, latTicks, lonTicks, RESO)
@@ -67,7 +61,8 @@ X_wind <- assign.quadrants(X_wind, latTicks, lonTicks, RESO)
 lat <- rev(rollmean(latTicks, 2))
 lon <- rollmean(lonTicks, 2)
 
-
+#Code to figure out the days, weeks, and months we have data for, then split the data into
+#lists based on the time periods
 days <- my.yday(X$time_utc)
 windDays <- my.yday(X_wind$time_utc)
 months <- my.month(X$time_utc)
@@ -83,6 +78,7 @@ wind.day <- data.aggregate(X_wind, windDays, uniqueWindDays, 'Day')
 data.month <- data.aggregate(X, months, uniqueMonths, 'Month')
 wind.month <- data.aggregate(X_wind, windMonths, uniqueWindMonths, 'Month')
 
+#calculate the means of each subregion/time period combination
 dailyMeans <- means.matrix(X, data.day, days, uniqueDays, RESO)
 dailyWindMeans <- means.matrix(X_wind, wind.day, windDays, uniqueWindDays, RESO)
 dailyMeans$Date <- as.Date(dailyMeans$Date)
@@ -96,29 +92,30 @@ monthlyWindMeans$Date <- as.Date(monthlyWindMeans$Date)
 dailyMeans <- dailyMeans %>% filter(Date %in% dailyWindMeans$Date)
 dailyWindMeans <- dailyWindMeans %>% filter(Date %in% dailyMeans$Date)
 
-
+#Perform the wind adjustment
 windAdjustedMeans <- dailyMeans
 windAdjustedMeans[, -1] <- dailyMeans[, -1] - dailyWindMeans[, -1]
 
 
 test <- windAdjustedMeans[, -1]
-test2 <- dailyWindMeans[, -1]
+test2 <- dailyMeans[, -1]
 test <- apply(test, 2, mean, na.rm = TRUE)
 test2 <- apply(test2, 2, mean, na.rm = TRUE)
 
+#Create plots
 df <- tibble(
   methane = test,
   longitude = rep(lon, times = RESO),
   latitude = rep(lat, each = RESO)
-)
+) %>% na.omit
 height = abs(mean(diff(lat)))
 width = abs(mean(diff(lon)))
 
 df2 <- tibble(
-  methane2 = test2,
+  methane2 = test2 - mean(test2, na.rm = TRUE),
   longitude = rep(lon, times = RESO),
   latitude = rep(lat, each = RESO)
-)
+) %>% na.omit
 height = abs(mean(diff(lat)))
 width = abs(mean(diff(lon)))
 
@@ -131,7 +128,7 @@ basemap.hybrid +
   ) +
   scale_fill_gradientn(colors = magma(100), limits = c(-50, 50)) +
   xlab('Longitude') + ylab('Latitude') +
-  theme(legend.key.height = unit(2.0, 'cm')) +
+  theme(legend.key.height = unit(1.0, 'cm')) +
   labs(fill = '')
 dev.off()
 
@@ -142,9 +139,9 @@ basemap.hybrid +
     mapping = aes(x = longitude, y = latitude, fill = methane2),
     height = height, width = width, alpha = 0.65
   ) +
-  scale_fill_gradientn(colors = magma(100), limits = c(1825, 1890)) +
+  scale_fill_gradientn(colors = magma(100), limits = c(-50, 50)) +
   xlab('Longitude') + ylab('Latitude') +
-  theme(legend.key.height = unit(2.0, 'cm')) +
+  theme(legend.key.height = unit(1.0, 'cm')) +
   labs(fill = '')
 dev.off()
 

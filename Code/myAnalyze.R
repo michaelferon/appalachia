@@ -15,15 +15,15 @@ library(googleway) # Elevation data.
 library(zoo)       # For rollmean().
 
 # Need a Google API key for some of the stuff below.
-info <- config::get(file = './config/config.yml')
+ info <- config::get(file = './config/config.yml')
 ggmap::register_google(info$google_api_key)
 googleway::set_key(info$google_api_key)
 rm(info)
 
-STATS <- FALSE # Print summary statistics?
+STATS <- TRUE # Print summary statistics?
 MAKE_GG_PLOTS <- FALSE # Wise to keep this FALSE -- see ~/Figures/gg3DayPlots.
 MAKE_QUILT_PLOTS <- FALSE # This as well -- see ~/Figures/3DayPlots.
-MAKE_TIME_SERIES <- FALSE # Leave this FALSE.
+MAKE_TIME_SERIES <- TRUE # Leave this FALSE.
 
 # ggmap stuff.
 latBounds <- range(X$latitude)
@@ -80,7 +80,6 @@ if (MAKE_TIME_SERIES) {
   end <- as.POSIXct('2020-04-01', tz = 'UTC')
   weekDF <- melt(weeklyMeans, id.vars = 'Date')
   g.week <- ggplot(data = weekDF, aes(x = Date, y = value, col = variable)) + geom_line()
-  # g.week <- g.week + ggtitle('Mean Weekly Methane Mixing Ratio\nby Quadrant')
   g.week <- g.week + xlab('Time') + ylab('Methane Mixing Ratio') + labs(col = 'Quadrant')
   g.week <- g.week + theme_bw()
   g.week <- g.week + ylim(1550.667, 1905.837)
@@ -89,7 +88,6 @@ if (MAKE_TIME_SERIES) {
   # Plotting daily means.
   dayDF <- melt(dailyMeans, id.vars = 'Date')
   g.day <- ggplot(data = dayDF, aes(x = Date, y = value, col = variable)) + geom_line()
-  # g.day <- g.day + ggtitle('Mean Daily Methane Mixing Ratio\nby Quadrant')
   g.day <- g.day + xlab('Time') + ylab('Methane Mixing Ratio') + labs(col = 'Quadrant')
   g.day <- g.day + theme_bw()
   g.day <- g.day + ylim(1550.667, 1905.837)
@@ -105,23 +103,7 @@ if (MAKE_TIME_SERIES) {
     dev.off()
   }
   
-  # print(g.week); print(g.day)
   rm(weekDF, dayDF, g.week, g.day, start, end)
-  # 
-  # weekDF <- melt(weeklyMeans, id.vars = 'Date')
-  # g.week <- ggplot(data = weekDF, aes(x = Date, y = value, col = variable)) + geom_smooth(se = FALSE)
-  # g.week <- g.week + ggtitle('Mean Weekly Methane Mixing Ratio\nby Quadrant')
-  # g.week <- g.week + xlab('Time') + ylab('Methane Mixing Ratio') + labs(col = 'Quadrant')
-  # g.week <- g.week + ylim(1732.27859758267, 1888.88981098133)
-  # 
-  # dayDF <- melt(weeklyMeans, id.vars = 'Date')
-  # g.day <- ggplot(data = dayDF, aes(x = Date, y = value, col = variable)) + geom_smooth(se = FALSE)
-  # g.day <- g.day + ggtitle('Mean Daily Methane Mixing Ratio\nby Quadrant')
-  # g.day <- g.day + xlab('Time') + ylab('Methane Mixing Ratio') + labs(col = 'Quadrant')
-  # g.day <- g.day + ylim(1562.84437103271, 1905.83589183284)
-  # 
-  # print(g.week); print(g.day)
-  # rm(weekDF, dayDF, g.week, g.day)
 }
 
 
@@ -134,23 +116,6 @@ if (STATS) {
   print(tapply(X$methane_mixing_ratio_bias_corrected, X$quadrant, sd))
   print(tapply(X$methane_mixing_ratio_bias_corrected, X$quadrant, IQR))
   print(tapply(X$methane_mixing_ratio_bias_corrected, X$quadrant, mad))
-  
-  if (RESO == 2) {
-    xbar <- tapply(X$methane_mixing_ratio_bias_corrected, X$quadrant, mean)
-    s <- tapply(X$methane_mixing_ratio_bias_corrected, X$quadrant, sd)
-    n <- tapply(X$methane_mixing_ratio_bias_corrected, X$quadrant, length)
-    z <- 2.57583
-    lower <- xbar - z*s/sqrt(n)
-    upper <- xbar + z*s/sqrt(n)
-    df <- as.data.frame(cbind(lower, upper), row.names = paste('Q', 1:4, sep=''))
-    g <- ggplot(data = df, mapping = aes(x = row.names(df), ymin = lower, ymax = upper, color = row.names(df)))
-    g <- g + geom_errorbar(width = 0.2) + ggtitle('99% Confidence Intervals for each Quadrant')
-    g <- g + labs(col = 'Quadrant') + ylab('Methane Mixing Ratio') + xlab('Quadrant')
-    g <- g + theme_bw()
-    print(g)
-    
-    rm(xbar, s, n, z, lower, upper, df, g)
-  }
 }
 
 
@@ -162,98 +127,84 @@ yLim <- latBounds + c(-0.065, 0.065)
 zLim <- c(1750, 1950)
 zLim <- c(1710, 1910)
 
-if (MAKE_QUILT_PLOTS) {
-  for (month in 1:length(data.month)) {
-    quilt.plot.month(data.month[[month]], xLim, yLim, zLim)
-  }
-  for (month in 1:length(data.month)) {
-    df <- data.month[[month]]
-    df <- df[df$qa_value == 1.0, ]
-    quilt.plot.month(df, xLim, yLim, zLim, outdir = '../Figures/3DayPlots/high-qa/')
-  }
-  
-  rm(month, df)
-}
 
-if (MAKE_GG_PLOTS & RESO == 64) {
-  for (month in 1:length(data.month)) {
-    ggmap.plot.month(data.month[[month]], basemap.hybrid, lat, lon, RESO, zLim)
-  }
-  for (month in 18:length(data.month)) {
-    df <- data.month[[month]]
-    df <- df[df$qa_value == 1.0, ]
-    ggmap.plot.month(df, basemap.hybrid, lat, lon, RESO, zLim, outdir = '../Figures/gg3DayPlots/high-qa/')
-  }
-  
-  rm(month, df)
-}
+## Quilt plots.
+# if (MAKE_QUILT_PLOTS) {
+#   for (month in 1:length(data.month)) {
+#     quilt.plot.month(data.month[[month]], xLim, yLim, zLim)
+#   }
+#   for (month in 1:length(data.month)) {
+#     df <- data.month[[month]]
+#     df <- df[df$qa_value == 1.0, ]
+#     quilt.plot.month(df, xLim, yLim, zLim, outdir = '../Figures/3DayPlots/high-qa/')
+#   }
+#   
+#   rm(month, df)
+# }
+# 
+# if (MAKE_GG_PLOTS & RESO == 64) {
+#   for (month in 1:length(data.month)) {
+#     ggmap.plot.month(data.month[[month]], basemap.hybrid, lat, lon, RESO, zLim)
+#   }
+#   for (month in 18:length(data.month)) {
+#     df <- data.month[[month]]
+#     df <- df[df$qa_value == 1.0, ]
+#     ggmap.plot.month(df, basemap.hybrid, lat, lon, RESO, zLim, outdir = '../Figures/gg3DayPlots/high-qa/')
+#   }
+#   
+#   rm(month, df)
+# }
 
 rm(xLim, yLim, zLim)
 
 
 
 
-## Cows.
-# cow.data <- read.csv('../Data/cows/Texas_Cow_Data.csv', header = TRUE)
-# cow.map <- get.basemap('google', 'terrain', lonBounds, latBounds)
-# 
-# cow.map +
-#   geom_point(cow.data, mapping = aes(x = X..Long., y = Y..Lat., size = Cattle),
-#              color = 'Red')
-# 
-# g <- ggplot(data = cow.data, mapping = aes(x = X..Long., y = Y..Lat., size = Cattle),
-#             size = 7.0)
-# g <- g + geom_point(color = 'Red')
-# g
-
-
-
-
 ## Seasonal distributions (for four quadrants).
-# if (RESO == 2) {
-#   seasons <- c(rep('Winter', 2), rep('Spring', 3), rep('Summer', 3), rep('Fall', 3), 'Winter')
-#   c1 <- rgb(30/255, 178/255, 243/255)
-#   c2 <- rgb(64/255, 180/255, 31/255)
-#   c3 <- rgb(246/255, 119/255, 112/255)
-#   c4 <- rgb(183/255, 158/255, 33/255)
-#   my.colors <- c(c1, c2, c3, c4)
-#   
-#   start <- as.POSIXlt('2018-12-01 00:00:00', tz = 'UTC')
-#   end <- as.POSIXlt('2019-12-01 00:00:00', tz = 'UTC')
-#   df <- subset(X, start <= time_utc & time_utc < end)
-#   df$season <- factor(seasons[month(df$time_utc)], levels = c('Winter', 'Spring', 'Summer', 'Fall'))
-#   df$quadrant <- factor(df$quadrant, levels = 1:4, labels = paste('Q', 1:4, sep=''))
-#   
-#   g <- ggplot(data = df, mapping = aes(x = methane_mixing_ratio_bias_corrected)) +
-#     geom_density(mapping = aes(color = season)) +
-#     facet_wrap(~quadrant, ncol = 2) + theme_bw() +
-#     xlim(1750, 1950) + ylab('Density Estimate') + xlab('Methane Mixing Ratio') +
-#     labs(color = 'Season', title = 'Seasonal Distributions by Quadrant',
-#          subtitle = 'December 2018 - November 2019') +
-#     scale_color_manual(values = my.colors)
-#   pdf(file = '../Figures/other/dist1.pdf', height = 5.25, width = 9)
-#   print(g)
-#   dev.off()
-#   
-#   rm(df)
-#   
-#   df <- X
-#   df$season <- factor(seasons[month(df$time_utc)], levels = c('Winter', 'Spring', 'Summer', 'Fall'))
-#   df$quadrant <- factor(df$quadrant, levels = 1:4, labels = paste('Q', 1:4, sep=''))
-#   q <- ggplot(data = df, mapping = aes(x = methane_mixing_ratio_bias_corrected)) +
-#     geom_density(mapping = aes(color = season)) +
-#     facet_wrap(~quadrant, ncol = 2) + theme_bw() +
-#     xlim(1750, 1950) + ylab('Density Estimate') + xlab('Methane Mixing Ratio') +
-#     labs(color = 'Season', title = 'Seasonal Distributions by Quadrant',
-#          subtitle = 'May 2018 - January 2020') +
-#     scale_color_manual(values = my.colors)
-#   pdf(file = '../Figures/other/dist2.pdf', height = 5.25, width = 9)
-#   print(q)
-#   dev.off()
-#   
-#   
-#   rm(seasons, start, end, df, c1, c2, c3, c4, my.colors, g, q)
-# }
+if (RESO == 2) {
+  seasons <- c(rep('Winter', 2), rep('Spring', 3), rep('Summer', 3), rep('Fall', 3), 'Winter')
+  c1 <- rgb(30/255, 178/255, 243/255)
+  c2 <- rgb(64/255, 180/255, 31/255)
+  c3 <- rgb(246/255, 119/255, 112/255)
+  c4 <- rgb(183/255, 158/255, 33/255)
+  my.colors <- c(c1, c2, c3, c4)
+
+  start <- as.POSIXlt('2018-12-01 00:00:00', tz = 'UTC')
+  end <- as.POSIXlt('2019-12-01 00:00:00', tz = 'UTC')
+  df <- subset(X, start <= time_utc & time_utc < end)
+  df$season <- factor(seasons[month(df$time_utc)], levels = c('Winter', 'Spring', 'Summer', 'Fall'))
+  df$quadrant <- factor(df$quadrant, levels = 1:4, labels = paste('Q', 1:4, sep=''))
+
+  g <- ggplot(data = df, mapping = aes(x = methane_mixing_ratio_bias_corrected)) +
+    geom_density(mapping = aes(color = season)) +
+    facet_wrap(~quadrant, ncol = 2) + theme_bw() +
+    xlim(1750, 1950) + ylab('Density Estimate') + xlab('Methane Mixing Ratio') +
+    labs(color = 'Season', title = 'Seasonal Distributions by Quadrant',
+         subtitle = 'December 2018 - November 2019') +
+    scale_color_manual(values = my.colors)
+  pdf(file = '../Figures/other/dist1.pdf', height = 5.25, width = 9)
+  print(g)
+  dev.off()
+
+  rm(df)
+
+  df <- X
+  df$season <- factor(seasons[month(df$time_utc)], levels = c('Winter', 'Spring', 'Summer', 'Fall'))
+  df$quadrant <- factor(df$quadrant, levels = 1:4, labels = paste('Q', 1:4, sep=''))
+  q <- ggplot(data = df, mapping = aes(x = methane_mixing_ratio_bias_corrected)) +
+    geom_density(mapping = aes(color = season)) +
+    facet_wrap(~quadrant, ncol = 2) + theme_bw() +
+    xlim(1750, 1950) + ylab('Density Estimate') + xlab('Methane Mixing Ratio') +
+    labs(color = 'Season', title = 'Seasonal Distributions by Quadrant',
+         subtitle = 'May 2018 - January 2020') +
+    scale_color_manual(values = my.colors)
+  pdf(file = '../Figures/other/dist2.pdf', height = 5.25, width = 9)
+  print(q)
+  dev.off()
+
+
+  rm(seasons, start, end, df, c1, c2, c3, c4, my.colors, g, q)
+}
 
 
 

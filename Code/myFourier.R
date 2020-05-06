@@ -21,16 +21,16 @@ X <- X %>%
 
 bounds <- c(1800, 1907.252)
 ## High QA.
-f <- fourier.df(X, tsbounds = bounds, mbounds = c(0, 2830.564))
+f <- fourier.df(X, tsbounds = bounds, mbounds = c(0, 2300))
 
 ## Save figures.
 pdf(file = '../figures/fourier/ts.pdf', height = 3.0, width = 10.0)
 f$ts
 dev.off()
-pdf(file = '../figures/fourier/frequency.pdf', height = 3.0, width = 10.0)
+pdf(file = '../figures/fourier/frequency.pdf', height = 3.0, width = 8.57)
 f$g
 dev.off()
-pdf(file = '../figures/fourier/period.pdf', height = 3.0, width = 10.0)
+pdf(file = '../figures/fourier/period.pdf', height = 3.0, width = 8.57)
 f$p
 dev.off()
 
@@ -40,10 +40,10 @@ dev.off()
 pdf(file = '../figures/fourier/adjusted/ts-adj.pdf', height = 3.0, width = 10.0)
 f$ts.adj
 dev.off()
-pdf(file = '../figures/fourier/adjusted/frequency-adj.pdf', height = 3.0, width = 10.0)
+pdf(file = '../figures/fourier/adjusted/frequency-adj.pdf', height = 3.0, width = 8.57)
 f$g.adj
 dev.off()
-pdf(file = '../figures/fourier/adjusted/period-adj.pdf', height = 3.0, width = 10.0)
+pdf(file = '../figures/fourier/adjusted/period-adj.pdf', height = 3.0, width = 8.57)
 f$p.adj
 dev.off()
 
@@ -92,7 +92,7 @@ rm(dfw, wetlands, shp.data, in.haynesville, temp, i, h)
 
 
 ## Fourier transform.
-mbounds <- c(0, 683.1120)
+mbounds <- c(0, 500)
 f.haynesville <- fourier.df(df.haynesville, tsbounds = bounds, type = 'weekly', mbounds = mbounds, k = 2)
 f.wetlands <- fourier.df(df.wetlands, tsbounds = bounds, type = 'weekly', mbounds = mbounds, k = 2)
 f.dfw <- fourier.df(df.dfw, tsbounds = bounds, type = 'weekly', mbounds = mbounds, k = 2)
@@ -103,10 +103,10 @@ f.dfw <- fourier.df(df.dfw, tsbounds = bounds, type = 'weekly', mbounds = mbound
 pdf(file = '../figures/fourier/haynesville/haynesville-ts.pdf', height = 3.0, width = 10.0)
 f.haynesville$ts
 dev.off()
-pdf(file = '../figures/fourier/haynesville/haynesville-frequency.pdf', height = 3.0, width = 10.0)
+pdf(file = '../figures/fourier/haynesville/haynesville-frequency.pdf', height = 3.0, width = 8.57)
 f.haynesville$g
 dev.off()
-pdf(file = '../figures/fourier/haynesville/haynesville-period.pdf', height = 3.0, width = 10.0)
+pdf(file = '../figures/fourier/haynesville/haynesville-period.pdf', height = 3.0, width = 8.57)
 f.haynesville$p
 dev.off()
 
@@ -116,10 +116,10 @@ dev.off()
 pdf(file = '../figures/fourier/adjusted/haynesville/haynesville-ts-adj.pdf', height = 3.0, width = 10.0)
 f.haynesville$ts.adj
 dev.off()
-pdf(file = '../figures/fourier/adjusted/haynesville/haynesville-frequency-adj.pdf', height = 3.0, width = 10.0)
+pdf(file = '../figures/fourier/adjusted/haynesville/haynesville-frequency-adj.pdf', height = 3.0, width = 8.57)
 f.haynesville$g.adj
 dev.off()
-pdf(file = '../figures/fourier/adjusted/haynesville/haynesville-period-adj.pdf', height = 3.0, width = 10.0)
+pdf(file = '../figures/fourier/adjusted/haynesville/haynesville-period-adj.pdf', height = 3.0, width = 8.57)
 f.haynesville$p.adj
 dev.off()
 
@@ -128,10 +128,10 @@ dev.off()
 pdf(file = '../figures/fourier/wetlands/wetlands-ts.pdf', height = 3.0, width = 10.0)
 f.wetlands$ts
 dev.off()
-pdf(file = '../figures/fourier/wetlands/wetlands-frequency.pdf', height = 3.0, width = 10.0)
+pdf(file = '../figures/fourier/wetlands/wetlands-frequency.pdf', height = 3.0, width = 8.57)
 f.wetlands$g
 dev.off()
-pdf(file = '../figures/fourier/wetlands/wetlands-period.pdf', height = 3.0, width = 10.0)
+pdf(file = '../figures/fourier/wetlands/wetlands-period.pdf', height = 3.0, width = 8.57)
 f.wetlands$p
 dev.off()
 
@@ -141,10 +141,10 @@ dev.off()
 pdf(file = '../figures/fourier/adjusted/wetlands/wetlands-ts-adj.pdf', height = 3.0, width = 10.0)
 f.wetlands$ts.adj
 dev.off()
-pdf(file = '../figures/fourier/adjusted/wetlands/wetlands-frequency-adj.pdf', height = 3.0, width = 10.0)
+pdf(file = '../figures/fourier/adjusted/wetlands/wetlands-frequency-adj.pdf', height = 3.0, width = 8.57)
 f.wetlands$g.adj
 dev.off()
-pdf(file = '../figures/fourier/adjusted/wetlands/wetlands-period-adj.pdf', height = 3.0, width = 10.0)
+pdf(file = '../figures/fourier/adjusted/wetlands/wetlands-period-adj.pdf', height = 3.0, width = 8.57)
 f.wetlands$p.adj
 dev.off()
 
@@ -153,10 +153,10 @@ dev.off()
 pdf(file = '../figures/fourier/dfw/dfw-ts.pdf', height = 3.0, width = 10.0)
 f.dfw$ts
 dev.off()
-pdf(file = '../figures/fourier/dfw/dfw-frequency.pdf', height = 3.0, width = 10.0)
+pdf(file = '../figures/fourier/dfw/dfw-frequency.pdf', height = 3.0, width = 8.57)
 f.dfw$g
 dev.off()
-pdf(file = '../figures/fourier/dfw/dfw-period.pdf', height = 3.0, width = 10.0)
+pdf(file = '../figures/fourier/dfw/dfw-period.pdf', height = 3.0, width = 8.57)
 f.dfw$p
 dev.off()
 
@@ -166,10 +166,10 @@ dev.off()
 pdf(file = '../figures/fourier/adjusted/dfw/dfw-ts-adj.pdf', height = 3.0, width = 10.0)
 f.dfw$ts.adj
 dev.off()
-pdf(file = '../figures/fourier/adjusted/dfw/dfw-frequency-adj.pdf', height = 3.0, width = 10.0)
+pdf(file = '../figures/fourier/adjusted/dfw/dfw-frequency-adj.pdf', height = 3.0, width = 8.57)
 f.dfw$g.adj
 dev.off()
-pdf(file = '../figures/fourier/adjusted/dfw/dfw-period.pdf', height = 3.0, width = 10.0)
+pdf(file = '../figures/fourier/adjusted/dfw/dfw-period.pdf', height = 3.0, width = 8.57)
 f.dfw$p
 dev.off()
 

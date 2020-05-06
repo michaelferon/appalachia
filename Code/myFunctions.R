@@ -1,6 +1,7 @@
 ## FUNCTIONS
 
-
+# Returns a GGMAP object containing a map of our region. This is used for most
+# of the maps in our report.
 get.basemap <- function(source, type, lonBounds, latBounds) {
   map <- get_map(location = c(mean(lonBounds), mean(latBounds)),
                  source = source, maptype = type, zoom = 6)
@@ -11,7 +12,9 @@ get.basemap <- function(source, type, lonBounds, latBounds) {
   return(map)
 }
 
-
+# Returns the day of the year of an observation, e.g. '2019-107' would be the
+# 117th day of 2019. This function is used frequently for data aggregation and
+# spatiotemporal analysis.
 my.yday <- function(data) {
   temp <- yday(data)
   lt100 <- temp < 100

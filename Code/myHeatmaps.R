@@ -26,7 +26,7 @@ basemap.hybrid <- get.basemap('google', 'hybrid', lonBounds, latBounds)
 
 
 ## Dividing data spatially into RESO^2 quadrants.
-RESO <- 100
+RESO <- 2
 latTicks <- seq(latBounds[1], latBounds[2], length = RESO + 1)
 lonTicks <- seq(lonBounds[1], lonBounds[2], length = RESO + 1)
 X <- assign.quadrants(X, latTicks, lonTicks, RESO)
@@ -53,6 +53,12 @@ uniqueMonths <- unique(dateTimes.months)
 data.day <- data.aggregate(X, dateTimes.days, uniqueDays, 'Day')
 data.week <- data.aggregate(X, dateTimes.weeks, uniqueWeeks, 'Week')
 data.month <- data.aggregate(X, dateTimes.months, uniqueMonths, 'Month')
+
+## For document.
+if (RESO == 2) {
+  docMonthStats <- prop.matrix(uniqueMonths, data.month, RESO)
+  print(docMonthStats)
+}
 
 
 

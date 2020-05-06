@@ -24,10 +24,9 @@ Wetlands = read.csv('../Data/ARIMA/Wetlands.csv')
 names(Wetlands) = c("L", "B", "R", "T")
 
 load('../Data/data-full/dataFullMask.Rdata')
-X$time_utc <- as.POSIXct(X$time_utc)
 
 
-## build the dataframes - THIS IS WHERE MICHAEL MAKES THE SHAPE FILE ADJUSTMENTS
+## build the dataframes
 # Haynesville
 shp.data <- readOGR(dsn = '../Data/shapefile/shale-plays/ShalePlays_US_EIA_Sep2019.shp')
 h <- which(shp.data$Shale_play == 'Haynesville-Bossier')

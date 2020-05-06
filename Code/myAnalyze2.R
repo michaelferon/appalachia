@@ -149,12 +149,7 @@ image(x = lon, y = rev(lat), z = t(apply(full$mat, 2, rev)),
 US(add = TRUE, lwd = 2)
 
 
-## TEST
-for (day in uniqueDays) {
-  outMean <- mean(df.out$methane_mixing_ratio_bias_corrected[my.yday(df.out$time_utc) == day])
-  df.h$methane_mixing_ratio_bias_corrected[my.yday(df.h$time_utc) == day] <- 
-    df.h$methane_mixing_ratio_bias_corrected[my.yday(df.h$time_utc) == day] - outMean
-}
+
 
 
 
