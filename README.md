@@ -36,7 +36,7 @@ We now describe in detail the contents of this Dropbox.
 
 
 
-folder: ~/code
+__folder: ~/code__
 =====
 
 *functions.R*
@@ -47,7 +47,7 @@ Most of the heavy-lifting is composed here. This file is sourced by most of the 
 
 
 
-folder: ~/code/init
+__folder: ~/code/init__
 ===================
 
 *initialize.R*
@@ -75,7 +75,7 @@ This file reads in `dataFull.Rdata` and produces `dataFull.csv`, a `.csv`-file v
 
 
 
-folder: ~/code/analysis
+__folder: ~/code/analysis__
 =======================
 
 *analyze.R*
@@ -113,7 +113,7 @@ Loads `dataFullMask.Rdata` and implements a basic shift of methane data using ea
 
 
 
-folder: ~/code/maps
+__folder: ~/code/maps__
 ===================
 
 *maps.R*
@@ -136,14 +136,14 @@ Processes `mask.Rdata`, the land-water-mask data, and produces Figure 9. This fi
 
 
 
-folder: ~/code/config
+__folder: ~/code/config__
 =====================
 This folder contains one file, `config.yml`, which contains a Google API key necessary for the functionality of most of the aforementioned scripts. Please don't store this key anywhere or post it publicly.
 
 
 
 
-folder: ~/code/latex
+__folder: ~/code/latex__
 ====================
 __DO NOT RUN__. This folder contains a shell script, `tex.sh`, which is only meant to be run locally. It combines all the 3-day quilt plots into a latex document, compiles it, and outputs it to `~/code/latex/plots.pdf`. The other files in this folder are miscellaneous ones necessary for latex compilation.
 
